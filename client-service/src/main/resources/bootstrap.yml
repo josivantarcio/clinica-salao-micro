@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: client-service
+  cloud:
+    config:
+      enabled: false
+  config:
+    import: optional:configserver:http://localhost:8888
+
+# Configuração do Eureka
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
