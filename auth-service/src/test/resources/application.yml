@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: auth-service-test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  flyway:
+    enabled: false
+
+# Propriedade personalizada para configuração JWT
+security:
+  jwt:
+    secret: testsecretkeythatshouldbelongerthanthisinproduction
+    expiration: 3600000  # 1 hour
+
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    "[org.springframework.security]": DEBUG
+    "[com.clinicsalon.auth]": DEBUG

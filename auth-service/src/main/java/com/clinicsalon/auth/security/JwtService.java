@@ -51,6 +51,23 @@ public class JwtService {
                 .compact();
     }
     
+    /**
+     * Gera um token JWT com uma expiração personalizada (para testes)
+     * 
+     * @param userDetails detalhes do usuário
+     * @param expirationMillis tempo em milissegundos para expiração do token
+     * @return token JWT
+     */
+    public String generateTokenWithCustomExpiration(UserDetails userDetails, long expirationMillis) {
+        return Jwts.builder()
+                .setClaims(new HashMap<>())
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+    
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
