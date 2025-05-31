@@ -1,0 +1,98 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /auth/$\{segment}
+        
+        - id: client-service
+          uri: lb://client-service
+          predicates:
+            - Path=/api/clients/**
+          filters:
+            - RewritePath=/api/clients/(?<segment>.*), /clients/$\{segment}
+            - AuthenticationFilter
+        
+        - id: professional-service
+          uri: lb://professional-service
+          predicates:
+            - Path=/api/professionals/**
+          filters:
+            - RewritePath=/api/professionals/(?<segment>.*), /professionals/$\{segment}
+            - AuthenticationFilter
+        
+        - id: appointment-service
+          uri: lb://appointment-service
+          predicates:
+            - Path=/api/appointments/**
+          filters:
+            - RewritePath=/api/appointments/(?<segment>.*), /appointments/$\{segment}
+            - AuthenticationFilter
+        
+        - id: loyalty-service
+          uri: lb://loyalty-service
+          predicates:
+            - Path=/api/loyalty/**
+          filters:
+            - RewritePath=/api/loyalty/(?<segment>.*), /loyalty/$\{segment}
+            - AuthenticationFilter
+        
+        - id: report-service
+          uri: lb://report-service
+          predicates:
+            - Path=/api/reports/**
+          filters:
+            - RewritePath=/api/reports/(?<segment>.*), /reports/$\{segment}
+            - AuthenticationFilter
+
+# Redis configuration for rate limiting
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# JWT Configuration
+clinicsalon:
+  security:
+    jwt:
+      token:
+        secret-key: ${JWT_SECRET:defaultsecretkeymustbelongerthan256bits}
+
+# Eureka Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: INFO
+    com.clinicsalon.gateway: DEBUG
