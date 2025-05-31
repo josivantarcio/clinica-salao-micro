@@ -53,6 +53,6 @@ public class RouteValidator {
             String prefix = pattern.substring(0, pattern.length() - 3);
             return path.startsWith(prefix);
         }
-        return path.equals(pattern) || path.contains(pattern);
+        return path.equals(pattern);
     }
 }

@@ -43,13 +43,11 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        // Usando o método recomendado atual
-        return new DaoAuthenticationProvider() {
-            {
-                setPasswordEncoder(passwordEncoder());
-                setUserDetailsService(userDetailsService);
-            }
-        };
+        // Usando o método não deprecated
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService);
+        return authProvider;
     }
 
     @Bean

@@ -15,6 +15,7 @@ spring:
     enabled: false
 
 # Propriedade personalizada para configuração JWT
+# Este é um namespace customizado usado pela aplicação, por isso o aviso no IDE pode ser ignorado
 security:
   jwt:
     secret: testsecretkeythatshouldbelongerthanthisinproduction
