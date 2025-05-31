@@ -10,7 +10,7 @@ import com.clinicsalon.appointment.exception.ResourceNotFoundException;
 import com.clinicsalon.appointment.mapper.AppointmentMapper;
 import com.clinicsalon.appointment.mapper.AppointmentServiceMapper;
 import com.clinicsalon.appointment.model.Appointment;
-import com.clinicsalon.appointment.model.AppointmentService;
+import com.clinicsalon.appointment.model.AppointmentServiceItem;
 import com.clinicsalon.appointment.model.AppointmentStatus;
 import com.clinicsalon.appointment.model.ServiceEntity;
 import com.clinicsalon.appointment.repository.AppointmentRepository;
@@ -94,7 +94,7 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.PENDING);
         
         BigDecimal totalPrice = BigDecimal.ZERO;
-        List<AppointmentService> appointmentServices = new ArrayList<>();
+        List<AppointmentServiceItem> appointmentServices = new ArrayList<>();
         
         // Calculando o preço total
         for (AppointmentServiceRequest serviceRequest : request.getServices()) {
@@ -112,7 +112,7 @@ public class AppointmentService {
             ServiceEntity service = serviceRepository.findById(serviceRequest.getServiceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Serviço", "id", serviceRequest.getServiceId()));
             
-            AppointmentService appointmentService = appointmentServiceMapper.toEntity(
+            AppointmentServiceItem appointmentService = appointmentServiceMapper.toEntity(
                     serviceRequest, appointment, service);
             appointmentServices.add(appointmentService);
         }
@@ -146,7 +146,7 @@ public class AppointmentService {
         
         // Calculando o novo preço total
         BigDecimal totalPrice = BigDecimal.ZERO;
-        List<AppointmentService> appointmentServices = new ArrayList<>();
+        List<AppointmentServiceItem> appointmentServices = new ArrayList<>();
         
         for (AppointmentServiceRequest serviceRequest : request.getServices()) {
             ServiceEntity service = serviceRepository.findById(serviceRequest.getServiceId())
@@ -154,7 +154,7 @@ public class AppointmentService {
             
             totalPrice = totalPrice.add(service.getPrice());
             
-            AppointmentService appointmentService = appointmentServiceMapper.toEntity(
+            AppointmentServiceItem appointmentService = appointmentServiceMapper.toEntity(
                     serviceRequest, appointment, service);
             appointmentServices.add(appointmentService);
         }
@@ -199,54 +199,56 @@ public class AppointmentService {
     }
 
     private void validateAppointmentRequest(AppointmentRequest request) {
-        // Validar se a data de início é menor que a de fim
-        if (request.getStartTime().isAfter(request.getEndTime())) {
-            throw new BusinessException("A data/hora de início deve ser anterior à data/hora de fim");
+        // Validar se o cliente existe
+        try {
+            clientServiceClient.findById(request.getClientId());
+        } catch (FeignException e) {
+            throw new ResourceNotFoundException("Cliente", "id", request.getClientId());
         }
-        
-        // Validar se a data já passou
+
+        // Validar se o profissional existe
+        try {
+            professionalServiceClient.findById(request.getProfessionalId());
+        } catch (FeignException e) {
+            throw new ResourceNotFoundException("Profissional", "id", request.getProfessionalId());
+        }
+
+        // Validar data e hora
         if (request.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("Não é possível criar ou atualizar agendamentos com data passada");
+            throw new BusinessException("A data e hora de início do agendamento deve ser futura");
         }
-        
-        // Validar conflito de horários para o profissional
-        List<Appointment> existingAppointments = appointmentRepository.findProfessionalAppointmentsForDateRange(
-                request.getProfessionalId(), 
-                request.getStartTime(), 
-                request.getEndTime());
-        
-        if (!existingAppointments.isEmpty()) {
-            throw new BusinessException("O profissional já possui agendamento neste horário");
+
+        if (request.getEndTime().isBefore(request.getStartTime())) {
+            throw new BusinessException("A hora de término deve ser posterior à hora de início");
+        }
+
+        // Verificar se há conflito de horário com outro agendamento
+        List<Appointment> conflictingAppointments = appointmentRepository
+                .findProfessionalAppointmentsForDateRange(
+                        request.getProfessionalId(), 
+                        request.getStartTime(), 
+                        request.getEndTime());
+
+        if (!conflictingAppointments.isEmpty()) {
+            throw new BusinessException("Existe outro agendamento para este profissional no mesmo horário");
         }
     }
 
     private AppointmentResponse enrichAppointmentResponse(Appointment appointment) {
-        AppointmentResponse response = appointmentMapper.toBasicResponse(appointment);
+        AppointmentResponse response = appointmentMapper.toResponse(appointment);
         
-        // Buscar os serviços associados ao agendamento
-        List<AppointmentService> services = appointmentServiceRepository.findByAppointmentId(appointment.getId());
-        response.setServices(services.stream()
-                .map(appointmentServiceMapper::toResponse)
-                .collect(Collectors.toList()));
-        
-        // Obter o nome do cliente via Feign Client
         try {
-            String clientName = clientServiceClient.getClientName(appointment.getClientId());
-            response.setClientName(clientName);
-        } catch (FeignException e) {
-            log.warn("Não foi possível obter o nome do cliente com ID {}: {}", 
-                    appointment.getClientId(), e.getMessage());
-            response.setClientName("Cliente #" + appointment.getClientId());
+            response.setClientName(clientServiceClient.findNameById(appointment.getClientId()));
+        } catch (Exception e) {
+            log.error("Erro ao buscar nome do cliente: {}", e.getMessage());
+            response.setClientName("Cliente não encontrado");
         }
         
-        // Obter o nome do profissional via Feign Client
         try {
-            String professionalName = professionalServiceClient.getProfessionalName(appointment.getProfessionalId());
-            response.setProfessionalName(professionalName);
-        } catch (FeignException e) {
-            log.warn("Não foi possível obter o nome do profissional com ID {}: {}", 
-                    appointment.getProfessionalId(), e.getMessage());
-            response.setProfessionalName("Profissional #" + appointment.getProfessionalId());
+            response.setProfessionalName(professionalServiceClient.findNameById(appointment.getProfessionalId()));
+        } catch (Exception e) {
+            log.error("Erro ao buscar nome do profissional: {}", e.getMessage());
+            response.setProfessionalName("Profissional não encontrado");
         }
         
         return response;
