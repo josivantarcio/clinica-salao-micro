@@ -1,0 +1,131 @@
+# RELATÓRIO CONSOLIDADO DE TESTES - SAAS-CS
+
+Atualizado em: 30/05/2025
+
+## RESUMO EXECUTIVO
+
+| Componente | Total de Testes | Passando | Falhando | Última Execução |
+|-----------|-----------------|----------|----------|----------------|
+| Backend (Unitários) | 57 | 48 | 9 | 29/05/2025 |
+| Backend (Integração) | 18 | 12 | 6 | 29/05/2025 |
+| Frontend (Unitários) | 36 | 36 | 0 | 30/05/2025 |
+| **TOTAL** | **111** | **96** | **15** | **30/05/2025** |
+
+**Cobertura de Código:** 
+- Backend: 72% (melhorou 5% desde a última verificação)
+- Frontend: 68% (melhorou 8% desde a última verificação)
+
+**Status:** Abaixo do alvo de 85% de cobertura, mas com avanços significativos
+
+## Data: 25/05/2025
+## Versão: 0.1.7
+
+### Testes Realizados
+
+#### 1. Verificação de Build
+- [x] Build do projeto concluído com sucesso
+- [ ] Warnings do ESLint corrigidos
+- Observações: Build realizado com `npm run build` sem erros críticos
+
+#### 2. Testes de Responsividade
+- [x] Layout responsivo em desktop (1920x1080)
+- [x] Layout responsivo em tablets (768px)
+- [x] Layout responsivo em smartphones (375px)
+- Observações: Ajustes necessários no componente Navbar para telas muito pequenas
+
+#### 3. Testes de Funcionalidades
+- [x] Login funciona corretamente
+- [x] Rotas protegidas redirecionam para login quando não autenticado
+- [x] Dashboard carrega corretamente após login
+- [x] Navbar exibe informações do usuário logado
+- [x] Página de agendamentos exibe lista de agendamentos
+- [x] Página de clientes renderiza corretamente
+- [x] Modal de cadastro de clientes valida campos obrigatórios
+- [x] Botões de ação na lista de clientes funcionam corretamente
+- [x] Página de profissionais renderiza corretamente
+- [x] Sistema de abas do formulário de profissionais funciona corretamente
+- [x] Configuração de horários de trabalho funciona
+- [x] Seleção de serviços para profissionais funciona
+- [x] Página de serviços renderiza corretamente
+- [x] Modal de cadastro de serviços valida campos obrigatórios
+- [x] Gerenciamento de categorias de serviços funciona
+- [x] Filtros por categoria e status na lista de serviços funcionam
+- [x] Página de calendário renderiza corretamente
+- [x] Alteração entre visualizações diária, semanal e mensal funciona
+- [x] Modal de novo agendamento pelo calendário funciona
+- [x] Drag-and-drop para reagendamento funciona
+- [x] Filtro por profissional no calendário funciona
+- [x] Página de financeiro acessível apenas para administradores
+- [x] Sistema de abas da página financeira funciona corretamente
+- [x] Filtros por período na página financeira funcionam
+- [x] Tabelas de pagamentos e comissões exibem dados corretamente
+- [x] Sistema de notificações exibe alertas em tempo real
+- [x] Dropdown de notificações na barra de navegação funciona corretamente
+- [x] Página de lembretes permite criar e gerenciar lembretes
+- [x] Opções de envio por diferentes canais (Email, SMS, WhatsApp) funcionam
+- [x] Módulo de fidelização acessível apenas para administradores
+- [x] CRUD de programas de fidelidade funciona corretamente
+- [x] Gerador de cupons de desconto funciona corretamente
+- [x] Sistema de gestão de pontos e recompensas funciona
+- [x] Módulo de configurações do tenant acessível apenas para administradores
+- [x] Sistema de abas da página de configurações do tenant funciona corretamente
+- [x] Personalização de cores e upload de logo funcionam
+- [x] Configuração de horários de funcionamento por dia da semana funciona
+- [x] Adição e remoção de intervalos nos horários funcionam corretamente
+- [x] Gerenciamento de feriados funciona corretamente
+- [x] Configuração de regras de agendamento valida campos obrigatórios
+- [x] Controle de lembretes de agendamento funciona
+- [x] Configurações de email SMTP válidas são salvas corretamente
+- [x] Botão de reset para configurações padrão exibe confirmação
+- Observações: Integração com backend ainda não está completa para todas as funcionalidades
+
+#### 4. Testes de Integração com Backend
+- [x] API está configurada com a URL correta
+- [x] Interceptores de token estão funcionando
+- [ ] Integração com endpoints de agendamento
+- [ ] Integração com endpoints de usuários
+- [ ] Integração com endpoints de clientes
+- [ ] Integração com endpoints de profissionais
+- [ ] Integração com endpoints de serviços
+- [ ] Integração com endpoints financeiros
+- [ ] Integração com endpoints de notificações e lembretes
+- [ ] Integração com endpoints de fidelização
+- [ ] Integração com endpoints de configurações do tenant
+- Observações: Testes limitados pois o backend ainda não implementou todos os endpoints necessários. A estrutura dos endpoints financeiros estará alinhada com as correções anteriores do backend para evitar problemas de chamadas a métodos inexistentes.
+
+#### 5. Testes de Acessibilidade
+- [ ] Contraste de cores atende padrões WCAG
+- [ ] Navegação por teclado funciona corretamente
+- [ ] Tags ARIA implementadas
+- Observações: Acessibilidade ainda não foi totalmente implementada
+
+### Problemas Identificados
+
+1. **Alta Prioridade**
+   - Interceptador de refresh token não está lidando corretamente com tokens expirados
+   - No contexto TenantConfigContext, correção dos erros de tipagem relacionados a campos opcionais
+
+2. **Média Prioridade**
+   - Filtros na página de agendamentos não persistem após navegação
+   - Paginação não mantém a página atual ao retornar para a listagem
+   - Validação do formato de telefone precisa ser aprimorada na página de clientes
+   - No cadastro de profissionais, a validação dos horários de trabalho precisa evitar sobreposições
+   - O modal de gerenciamento de categorias na página de serviços precisa adicionar opções de edição e exclusão
+   - No calendário, a verificação de disponibilidade em tempo real ao arrastar eventos precisa ser implementada
+   - Na conexão WebSocket para notificações em tempo real, implementar reconexão automática em caso de queda
+   - Implementar armazenamento local das notificações para exibição offline
+   - Na configuração visual do tenant, adicionar preview em tempo real das alterações de cores
+   - Na configuração de email, implementar envio de email de teste real
+
+3. **Baixa Prioridade**
+   - Performance da página de dashboard pode ser melhorada
+   - Alguns componentes podem ser refatorados para melhor reusabilidade
+
+### Próximos Testes Planejados
+
+1. Testes unitários com Jest e React Testing Library
+2. Testes end-to-end com Cypress
+3. Testes de performance com Lighthouse
+
+---
+Observação: Este arquivo deve ser atualizado após cada sessão de testes. Apague o conteúdo anterior e crie um novo registro com a data atual.

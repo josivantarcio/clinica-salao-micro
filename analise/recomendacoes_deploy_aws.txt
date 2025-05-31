@@ -1,0 +1,26 @@
+### Recomendações para Deploy na AWS
+
+1. Atualizar CI/CD: Atualize o arquivo .github/workflows/ci-cd.yml para usar Java 21
+   - Alterar a versão do JDK de 17 para 21 para manter consistência com o Dockerfile e pom.xml
+
+2. Secrets: Configure os secrets necessários no repositório GitHub ou AWS
+   - JWT_SECRET e JWT_EXPIRATION
+   - Credenciais de banco de dados
+   - Credenciais da API Asaas
+   - Tokens para integração com serviços externos
+
+3. Banco de Dados: Considere usar RDS em vez do PostgreSQL containerizado para produção
+   - Melhor desempenho, backup automático e alta disponibilidade
+   - Configure grupos de segurança para limitar o acesso
+
+4. Cache: Considere usar ElastiCache em vez do Redis containerizado para produção
+   - Melhor escalabilidade e gerenciamento
+   - Suporte a clusters para alta disponibilidade
+
+5. Monitoramento: Configure alertas no CloudWatch para métricas importantes
+   - Uso de CPU e memória
+   - Tempo de resposta da API
+   - Erros e exceções
+   - Métricas de negócio (agendamentos, transações)
+
+OBS: Não realizar o deploy imediatamente, pois existem warnings pendentes e itens no CHANGELOG que precisam ser implementados antes da liberação para produção.

@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.clinicsalon</groupId>
         <artifactId>clinicsalon-microservices</artifactId>
-        <version>1.1.0</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>api-gateway</artifactId>
@@ -21,28 +21,16 @@
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
         
-        <!-- Spring Cloud Netflix Eureka Client -->
+        <!-- Eureka Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         
-        <!-- Spring Cloud Config Client -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        
-        <!-- Actuator for monitoring and metrics -->
+        <!-- Spring Boot Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        
-        <!-- Security for JWT validation -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         
         <!-- JWT -->
@@ -64,12 +52,6 @@
             <scope>runtime</scope>
         </dependency>
         
-        <!-- Redis for rate limiting -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
-        </dependency>
-        
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -86,19 +68,6 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- Mockito explícito para resolver problemas com MockitoExtension -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.9.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

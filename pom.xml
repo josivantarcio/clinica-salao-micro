@@ -6,7 +6,7 @@
 
     <groupId>com.clinicsalon</groupId>
     <artifactId>clinicsalon-microservices</artifactId>
-    <version>1.1.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>ClinicaSalao Microservices</name>
     <description>Microservices architecture for ClinicaSalao application</description>
@@ -22,11 +22,13 @@
         <module>auth-service</module>
         <module>api-gateway</module>
         <module>discovery-service</module>
-        <module>appointment-service</module>
         <module>client-service</module>
+        <module>appointment-service</module>
+        <!-- Módulos que serão implementados no futuro:
         <module>professional-service</module>
         <module>loyalty-service</module>
         <module>report-service</module>
+        -->
     </modules>
 
     <properties>
