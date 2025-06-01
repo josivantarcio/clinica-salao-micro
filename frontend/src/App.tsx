@@ -14,6 +14,12 @@ const Clients = React.lazy(() => import('./pages/clients/Clients'));
 const ClientDetails = React.lazy(() => import('./pages/clients/ClientDetails'));
 const ClientForm = React.lazy(() => import('./pages/clients/ClientForm'));
 
+// Finance Pages
+const Transactions = React.lazy(() => import('./pages/finance/Transactions'));
+const TransactionDetails = React.lazy(() => import('./pages/finance/TransactionDetails'));
+const TransactionForm = React.lazy(() => import('./pages/finance/TransactionForm'));
+const Revenue = React.lazy(() => import('./pages/finance/Revenue'));
+
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -47,6 +53,13 @@ function App() {
                   <Route path="clients/new" element={<ClientForm />} />
                   <Route path="clients/:id" element={<ClientDetails />} />
                   <Route path="clients/:id/edit" element={<ClientForm />} />
+                  
+                  {/* Rotas de Finanças */}
+                  <Route path="finance" element={<Transactions />} />
+                  <Route path="finance/transactions/new" element={<TransactionForm />} />
+                  <Route path="finance/transactions/:id" element={<TransactionDetails />} />
+                  <Route path="finance/transactions/:id/edit" element={<TransactionForm />} />
+                  <Route path="finance/revenue" element={<Revenue />} />
                 </Route>
                 
                 {/* 404 Route */}
