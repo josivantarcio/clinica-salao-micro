@@ -29,9 +29,8 @@
         <module>professional-service-client</module>
         <module>loyalty-service</module>
         <module>loyalty-service-client</module>
-        <!-- Módulos que serão implementados no futuro:
         <module>report-service</module>
-        -->
+        <module>report-service-client</module>
     </modules>
 
     <properties>

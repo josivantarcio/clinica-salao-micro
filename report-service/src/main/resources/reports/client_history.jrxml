@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="client_history" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ced95029-b569-4027-895c-af2843a4e088">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="Title" fontName="Arial" fontSize="16" isBold="true"/>
+	<style name="SubTitle" fontName="Arial" fontSize="14" isBold="true"/>
+	<style name="Column" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12" isBold="false"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#F0F0F0"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="CLIENT_NAME" class="java.lang.String"/>
+	<parameter name="CLIENT_ID" class="java.lang.Long"/>
+	<parameter name="PERIOD" class="java.lang.String"/>
+
+	<!-- Campos da seção de dados pessoais -->
+	<field name="clientName" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
+	<field name="birthDate" class="java.time.LocalDate"/>
+	<field name="registrationDate" class="java.time.LocalDateTime"/>
+	<field name="totalAppointments" class="java.lang.Integer"/>
+	<field name="totalSpent" class="java.math.BigDecimal"/>
+	<field name="loyaltyPoints" class="java.lang.Integer"/>
+	
+	<!-- Campos da seção de serviços mais frequentados -->
+	<field name="serviceName" class="java.lang.String"/>
+	<field name="serviceCount" class="java.lang.Integer"/>
+	<field name="lastServiceDate" class="java.time.LocalDateTime"/>
+	<field name="serviceCategory" class="java.lang.String"/>
+	
+	<!-- Campos da seção de profissionais preferidos -->
+	<field name="professionalName" class="java.lang.String"/>
+	<field name="appointmentCount" class="java.lang.Integer"/>
+	<field name="specialty" class="java.lang.String"/>
+	
+	<title>
+		<band height="90" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="0" y="0" width="555" height="30" uuid="1a652692-054a-40f3-ade5-68d8da36626d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Histórico Completo do Cliente]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="SubTitle" x="0" y="30" width="555" height="20" uuid="88d4231e-f014-4b0d-b871-1737ba63a1ae"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{CLIENT_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="50" width="555" height="20" uuid="a7aae1ce-48f2-4a5f-9b2c-8f5c3a996786"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{PERIOD}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="80" width="555" height="1" uuid="9c9d57e9-e905-4d36-a929-22fc1c65e2e5"/>
+			</line>
+		</band>
+	</title>
+	
+	<!-- Seção 1: Dados do Cliente -->
+	<pageHeader>
+		<band height="180" splitType="Stretch">
+			<staticText>
+				<reportElement style="SubTitle" x="0" y="10" width="555" height="20" uuid="2d6a7b41-9f57-4359-a03e-4dfcb3e38f5e"/>
+				<text><![CDATA[Dados Pessoais]]></text>
+			</staticText>
+			
+			<staticText>
+				<reportElement style="Column" x="0" y="40" width="150" height="20" uuid="3dc0a28e-3b1d-44bf-a9e0-cae7dce67278"/>
+				<text><![CDATA[Nome:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="150" y="40" width="400" height="20" uuid="42c5d8ec-a9dc-4db0-ac6a-3f00a60a6cb5"/>
+				<textFieldExpression><![CDATA[$F{clientName}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="0" y="60" width="150" height="20" uuid="6f0c5e37-8075-47b0-8c62-93e7873969b4"/>
+				<text><![CDATA[Email:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="150" y="60" width="400" height="20" uuid="2cc6b6b5-76e8-4c03-adb2-1a52f88e1e1d"/>
+				<textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="0" y="80" width="150" height="20" uuid="5c2a1d8d-e0de-40a9-8c36-c82f1ef45af8"/>
+				<text><![CDATA[Telefone:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="150" y="80" width="150" height="20" uuid="65a06bf9-3b5a-4bb6-9f22-d7e3e1c6927f"/>
+				<textFieldExpression><![CDATA[$F{phone}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="300" y="80" width="100" height="20" uuid="f3b06b7e-1db4-480d-a41c-8f99f64fbdf8"/>
+				<text><![CDATA[Data de Nasc.:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="400" y="80" width="150" height="20" uuid="4c9de1d2-83c5-4f4a-b3fd-89cb14e9f474"/>
+				<textFieldExpression><![CDATA[$F{birthDate}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="0" y="100" width="150" height="20" uuid="ea3df597-c8c9-4bcf-a9ee-2bff5e4dc0ae"/>
+				<text><![CDATA[Cliente desde:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy HH:mm">
+				<reportElement x="150" y="100" width="150" height="20" uuid="e37d06ab-df26-4dda-9d91-5a79b4e7e266"/>
+				<textFieldExpression><![CDATA[$F{registrationDate}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="0" y="130" width="150" height="20" uuid="a5e8a4d5-85e1-4a05-9d9b-01c11c60beed"/>
+				<text><![CDATA[Total de Agendamentos:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="150" y="130" width="100" height="20" uuid="1c7a5d6c-ef5c-45a4-b70a-e72c0e4cca77"/>
+				<textFieldExpression><![CDATA[$F{totalAppointments}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="300" y="130" width="100" height="20" uuid="a67b34cd-e5d8-4a46-9b0f-677b4c2b6e60"/>
+				<text><![CDATA[Total Gasto:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="400" y="130" width="150" height="20" uuid="3689ebc8-5d0d-4862-a99e-5eb39e4a5d56"/>
+				<textFieldExpression><![CDATA[$F{totalSpent}]]></textFieldExpression>
+			</textField>
+			
+			<staticText>
+				<reportElement style="Column" x="0" y="150" width="150" height="20" uuid="1da52374-1a4d-47b7-9f8d-03c8d9e4ac4c"/>
+				<text><![CDATA[Pontos de Fidelidade:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="150" y="150" width="100" height="20" uuid="0ae3c3e3-4e77-48b2-bb8a-fd8eb2c2db58"/>
+				<textFieldExpression><![CDATA[$F{loyaltyPoints}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	
+	<!-- Seção 2: Serviços Mais Frequentados -->
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement style="SubTitle" x="0" y="0" width="555" height="20" uuid="9a6d7ff5-b7df-4f95-90c1-cc69a7e28b94"/>
+				<text><![CDATA[Serviços Mais Frequentados]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	
+	<detail>
+		<band height="30" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="555" height="30" uuid="fa7cec56-4ec1-48e6-a26e-7266a995d141"/>
+				<textField textAdjust="StretchHeight">
+					<reportElement style="Detail" x="0" y="0" width="200" height="30" uuid="c01927d3-c9a4-4db4-9b7f-857df6801c3b"/>
+					<box leftPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{serviceName}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Detail" x="200" y="0" width="100" height="30" uuid="a23f7132-9845-4d5b-b77e-7adc6447e311"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{serviceCategory}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Detail" x="300" y="0" width="80" height="30" uuid="c80e5eb0-cde5-4d68-af2c-e287d183e1a1"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{serviceCount}]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd/MM/yyyy">
+					<reportElement style="Detail" x="380" y="0" width="175" height="30" uuid="44bdcf7c-acfd-42c8-99a1-c8987ef71919"/>
+					<box rightPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{lastServiceDate}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	
+	<!-- Seção 3: Profissionais Preferidos -->
+	<columnFooter>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement style="SubTitle" x="0" y="0" width="555" height="20" uuid="0a4d5c65-0b83-4aa0-b0a4-431d1d221d29"/>
+				<text><![CDATA[Profissionais Preferidos]]></text>
+			</staticText>
+		</band>
+	</columnFooter>
+	
+	<summary>
+		<band height="100" splitType="Stretch">
+			<frame>
+				<reportElement x="0" y="0" width="555" height="30" uuid="d73ef665-2844-477d-8471-e2e0df33235d"/>
+				<staticText>
+					<reportElement style="Column" x="0" y="0" width="200" height="30" uuid="4d5b50d6-6f90-4e7f-91d6-62b8edd8c058"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[Profissional]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column" x="200" y="0" width="180" height="30" uuid="9fa1eb1d-3add-4b45-aa54-374949098a45"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[Especialidade]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column" x="380" y="0" width="175" height="30" uuid="a5da03c9-8a0a-4ec9-9533-3a15a0adc095"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[Quantidade de Atendimentos]]></text>
+				</staticText>
+			</frame>
+			
+			<frame>
+				<reportElement positionType="Float" x="0" y="30" width="555" height="30" uuid="d3f08537-a9c3-472c-8b1e-6bfaecc521b4"/>
+				<textField>
+					<reportElement style="Detail" x="0" y="0" width="200" height="30" uuid="64c5c59e-fc2d-460e-a203-aded31b1e18e"/>
+					<box leftPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{professionalName}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Detail" x="200" y="0" width="180" height="30" uuid="7a6ad8b6-8d7d-48fc-b352-1ef7d384f0a5"/>
+					<box leftPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{specialty}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Detail" x="380" y="0" width="175" height="30" uuid="a3b6f7ed-74ea-41d1-88dd-9c0910dc2306"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{appointmentCount}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="loyalty_points_summary" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="13acf49e-4913-4d1b-bccc-113817ad15d1">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Arial" fontSize="26" isBold="true"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#EEEEEE"/>
+		</conditionalStyle>
+	</style>
+	<style name="Table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+			<topPen lineWidth="1.0" lineColor="#000000"/>
+			<leftPen lineWidth="1.0" lineColor="#000000"/>
+			<bottomPen lineWidth="1.0" lineColor="#000000"/>
+			<rightPen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TH" mode="Opaque" backcolor="#8494C7">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#CFDBE6">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#F0F8FF"/>
+		</conditionalStyle>
+	</style>
+	<subDataset name="tierDataset" uuid="f13e6d36-5148-4ecc-bbe3-3035def80980">
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="tier" class="java.lang.String"/>
+		<field name="count" class="java.lang.Integer"/>
+	</subDataset>
+	<parameter name="reportDate" class="java.lang.String"/>
+	<parameter name="reportTitle" class="java.lang.String"/>
+	<parameter name="tierDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="totalActiveAccounts" class="java.lang.Integer"/>
+	<field name="totalPointsIssued" class="java.lang.Integer"/>
+	<field name="totalPointsRedeemed" class="java.lang.Integer"/>
+	<field name="activePoints" class="java.lang.Integer"/>
+	<background>
+		<band height="302" splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="136" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="164" height="126" uuid="ddc15723-2728-421f-b95e-2df9faf64ce1"/>
+				<imageExpression><![CDATA["reports/logo.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement style="Title" x="170" y="0" width="385" height="62" forecolor="#000000" uuid="1a652692-054a-40f3-ade5-68d8da36626d"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Clínica Salão]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="SubTitle" x="170" y="62" width="385" height="22" forecolor="#000000" uuid="88d4231e-f014-4b0d-b871-1737ba63a1ae"/>
+				<textElement markup="none">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{reportTitle}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="170" y="94" width="58" height="16" uuid="0b726292-1383-4dad-ac6e-b445e1d5fdbb"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Data:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="230" y="94" width="200" height="16" uuid="ae3930a4-9d33-4346-b1de-6ec9f7ebb0ee"/>
+				<textFieldExpression><![CDATA[$P{reportDate}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="16" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="400" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="19" width="280" height="30" uuid="bbf56f16-5fcf-4e0f-9c8c-1afc9d26ff17"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Resumo do Programa de Fidelidade]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="61" width="180" height="20" uuid="97fc75d5-95dc-448d-842d-c5c3fdb7ac3d"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total de Contas Ativas:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="210" y="61" width="100" height="20" uuid="28cb3489-4bcb-4207-95ba-86fbd0a8e62d"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{totalActiveAccounts}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="30" y="81" width="180" height="20" uuid="e9f78ccc-eb02-42cd-a50f-46bb6b4a8ac3"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total de Pontos Emitidos:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="210" y="81" width="100" height="20" uuid="00e6d0f4-1f25-4d39-9442-99cfb0e50309"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{totalPointsIssued}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="30" y="101" width="180" height="20" uuid="e6c6ea9e-ad17-4dba-85ed-8fa4c8d8ae37"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total de Pontos Resgatados:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="210" y="101" width="100" height="20" uuid="1fcdc9ae-e78e-4b3e-9e53-c0bc5431caea"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{totalPointsRedeemed}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="30" y="121" width="180" height="20" uuid="6ba3fa30-3e3e-4ec0-a9b3-aa37d72c4a46"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pontos Ativos:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="210" y="121" width="100" height="20" uuid="85cf3358-1a09-42fa-a4a7-2a3c3afac471"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{activePoints}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="30" y="170" width="490" height="200" uuid="9fa29fc9-9f35-471a-b95f-b83f9a47798b"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="tierDataset" uuid="88b1f20a-b8a9-47c4-a54c-9939a7ad67fc">
+						<dataSourceExpression><![CDATA[$P{tierDataSource}]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="245" uuid="da7c8546-2975-4b56-905f-b0bf748e0de9">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:columnHeader style="Table_CH" height="30">
+							<staticText>
+								<reportElement x="0" y="0" width="245" height="30" uuid="32df12ac-70e3-4b1b-b316-fee8aa68c008"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Categoria]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="30">
+							<textField>
+								<reportElement x="0" y="0" width="245" height="30" uuid="0b6fed44-0ea9-41e3-9d61-5d2dca6adf17"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{tier}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="245" uuid="5a56ef7d-c114-47b7-b5d1-8d6a4fa7839f">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:columnHeader style="Table_CH" height="30">
+							<staticText>
+								<reportElement x="0" y="0" width="245" height="30" uuid="2c00f8ab-cce0-427a-9a2c-0f1c24acf3ce"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Quantidade de Clientes]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="30">
+							<textField>
+								<reportElement x="0" y="0" width="245" height="30" uuid="10c94f5d-eecb-476a-a2a6-6c50f83f7776"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{count}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement style="Column header" x="433" y="0" width="80" height="20" uuid="9825b46e-76f1-469a-abb8-a1cc27aad685"/>
+				<textElement textAlignment="Right">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement style="Column header" x="513" y="0" width="40" height="20" uuid="c7f4fdb9-39c3-4b8a-aa2f-03a3c1249b91"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement style="Column header" x="0" y="0" width="197" height="20" uuid="5c3301e7-a737-4c59-8a2f-a6c79fd1adb8"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,10 @@
+package com.clinicsalon.report.dto;
+
+public enum ReportType {
+    CLIENT_APPOINTMENTS,
+    PROFESSIONAL_SCHEDULE,
+    REVENUE_SUMMARY,
+    LOYALTY_POINTS_SUMMARY,
+    CLIENT_HISTORY,
+    SERVICES_POPULARITY
+}

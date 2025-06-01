@@ -1,5 +1,6 @@
 package com.clinicsalon.loyalty.service;
 
+import com.clinicsalon.client.client.ClientClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 @Slf4j
 public class ClientLookupService {
 
-    // Aqui seria injetado o cliente Feign para comunicação com o client-service
-    // private final ClientServiceClient clientServiceClient;
+    private final ClientClient clientClient;
     
     /**
      * Busca o nome do cliente pelo ID
@@ -25,11 +25,8 @@ public class ClientLookupService {
     public String getClientName(Long clientId) {
         log.info("Looking up client name for ID: {}", clientId);
         
-        // Aqui seria a chamada real ao cliente Feign
-        // return clientServiceClient.getClientName(clientId);
-        
-        // Mock temporário até que o client-service-client seja implementado
-        return "Cliente " + clientId;
+        // Chamada real ao cliente Feign para buscar o nome do cliente
+        return clientClient.getClientById(clientId).getBody().getName();
     }
     
     /**

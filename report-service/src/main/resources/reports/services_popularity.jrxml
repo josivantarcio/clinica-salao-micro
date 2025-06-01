@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="services_popularity" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ced95029-b569-4027-895c-af2843a4e088">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="Title" fontName="Arial" fontSize="16" isBold="true"/>
+	<style name="SubTitle" fontName="Arial" fontSize="14" isBold="true"/>
+	<style name="Column" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12" isBold="false"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#F0F0F0"/>
+		</conditionalStyle>
+	</style>
+	<style name="ChartTitle" fontName="Arial" fontSize="14" isBold="true"/>
+	
+	<parameter name="START_DATE" class="java.lang.String"/>
+	<parameter name="END_DATE" class="java.lang.String"/>
+	<parameter name="TOTAL_APPOINTMENTS" class="java.lang.Integer"/>
+	<parameter name="TOTAL_REVENUE" class="java.math.BigDecimal"/>
+	
+	<!-- Campos para a tabela principal -->
+	<field name="serviceName" class="java.lang.String"/>
+	<field name="category" class="java.lang.String"/>
+	<field name="count" class="java.lang.Integer"/>
+	<field name="percentage" class="java.lang.Double"/>
+	<field name="revenue" class="java.math.BigDecimal"/>
+	<field name="averagePrice" class="java.math.BigDecimal"/>
+	
+	<!-- Campos para o gráfico de popularidade -->
+	<field name="serviceLabel" class="java.lang.String"/>
+	<field name="serviceValue" class="java.lang.Integer"/>
+	
+	<!-- Campos para análise de tendência -->
+	<field name="month" class="java.lang.String"/>
+	<field name="monthCount" class="java.lang.Integer"/>
+	<field name="monthRevenue" class="java.math.BigDecimal"/>
+	
+	<variable name="TotalServices" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{count}]]></variableExpression>
+	</variable>
+	<variable name="TotalRevenue" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{revenue}]]></variableExpression>
+	</variable>
+	
+	<title>
+		<band height="80" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="0" y="0" width="555" height="30" uuid="1a652692-054a-40f3-ade5-68d8da36626d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Relatório de Popularidade de Serviços]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="40" width="555" height="20" uuid="a7aae1ce-48f2-4a5f-9b2c-8f5c3a996786"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["Período: " + $P{START_DATE} + " a " + $P{END_DATE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="60" width="555" height="20" uuid="88d4231e-f014-4b0d-b871-1737ba63a1ae"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["Total de Agendamentos: " + $P{TOTAL_APPOINTMENTS} + " | Receita Total: R$ " + new java.text.DecimalFormat("#,##0.00").format($P{TOTAL_REVENUE})]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	
+	<!-- Seção de Gráfico de Pizza -->
+	<pageHeader>
+		<band height="250" splitType="Stretch">
+			<staticText>
+				<reportElement style="SubTitle" x="0" y="10" width="555" height="30" uuid="25e27654-4a2f-431a-a31e-14a08d614cc1"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Distribuição de Popularidade por Serviço]]></text>
+			</staticText>
+			
+			<!-- Reservado para gráfico de pizza que será gerado dinamicamente -->
+			<rectangle>
+				<reportElement x="50" y="50" width="455" height="180" uuid="15a86c1e-1ecd-46ef-90a3-39d3af03b7a9"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="50" y="125" width="455" height="30" uuid="0f8d8a67-0e49-4f38-a398-23b1ce7009a9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Gráfico de Pizza: Distribuição de Serviços]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	
+	<!-- Cabeçalho da Tabela -->
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement style="Column" x="0" y="0" width="180" height="30" uuid="df13c76a-cd95-4651-bd33-ced09c9cdaaa"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Serviço]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column" x="180" y="0" width="100" height="30" uuid="10b2b903-0c26-47bf-b5b1-50ab90155b52"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Categoria]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column" x="280" y="0" width="60" height="30" uuid="5eae6f67-19f1-4b3f-8855-68e1e60c6144"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Qtde]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column" x="340" y="0" width="70" height="30" uuid="5ad6db73-4413-4f8e-be0e-bfe61e620e01"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column" x="410" y="0" width="70" height="30" uuid="a5b444f2-6ece-44bc-b2c3-ab3ee8d22e05"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Preço Médio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column" x="480" y="0" width="75" height="30" uuid="afd7d3e0-8b1d-484e-9dbf-aa9d4ed6a2d5"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Receita]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	
+	<!-- Detalhes da Tabela -->
+	<detail>
+		<band height="30" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="555" height="30" uuid="fa7cec56-4ec1-48e6-a26e-7266a995d141"/>
+				<textField textAdjust="StretchHeight">
+					<reportElement style="Detail" x="0" y="0" width="180" height="30" uuid="c01927d3-c9a4-4db4-9b7f-857df6801c3b"/>
+					<box leftPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{serviceName}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Detail" x="180" y="0" width="100" height="30" uuid="a23f7132-9845-4d5b-b77e-7adc6447e311"/>
+					<box leftPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{category}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Detail" x="280" y="0" width="60" height="30" uuid="c80e5eb0-cde5-4d68-af2c-e287d183e1a1"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{count}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00%">
+					<reportElement style="Detail" x="340" y="0" width="70" height="30" uuid="44bdcf7c-acfd-42c8-99a1-c8987ef71919"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{percentage} / 100.0]]></textFieldExpression>
+				</textField>
+				<textField pattern="¤ #,##0.00">
+					<reportElement style="Detail" x="410" y="0" width="70" height="30" uuid="8c10ac1d-60f2-4ae5-a57c-f97b67d9a33e"/>
+					<box rightPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{averagePrice}]]></textFieldExpression>
+				</textField>
+				<textField pattern="¤ #,##0.00">
+					<reportElement style="Detail" x="480" y="0" width="75" height="30" uuid="96f8a067-f367-4796-a9c0-5f8cd28db7df"/>
+					<box rightPadding="5">
+						<topPen lineWidth="1.0" lineStyle="Solid"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{revenue}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	
+	<!-- Rodapé com totais -->
+	<summary>
+		<band height="130" splitType="Stretch">
+			<!-- Linha com totais -->
+			<staticText>
+				<reportElement style="Column" x="0" y="20" width="280" height="30" uuid="a36e1459-3f9e-432e-b519-e95c3b656558"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Total:]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="Column" x="280" y="20" width="60" height="30" uuid="5a9a2cc5-a7d1-4d59-966f-0cdb65a79852"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{TotalServices}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00%">
+				<reportElement style="Column" x="340" y="20" width="70" height="30" uuid="3da0b6c1-7d2c-4fa5-8d2c-ffcf6e9e87f9"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[1.0]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement style="Column" x="410" y="20" width="145" height="30" uuid="7e6f4af2-a8b8-43a2-8580-5183df6c7b04"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{TotalRevenue}]]></textFieldExpression>
+			</textField>
+			
+			<!-- Seção de Observações e Análise -->
+			<staticText>
+				<reportElement style="SubTitle" x="0" y="70" width="555" height="20" uuid="6e0d64f5-b7e1-4f5e-851a-f5550ceec797"/>
+				<text><![CDATA[Observações e Análise]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="0" y="100" width="555" height="30" uuid="0e92b56a-8657-4ac5-b8b3-be0f978af4e7"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="10" y="105" width="535" height="20" uuid="0b0a8a91-b7b7-4181-b745-6e8b97ca895a"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Os serviços mais populares representam oportunidades para promoções e aumento de capacidade.]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

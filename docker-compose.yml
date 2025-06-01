@@ -148,6 +148,27 @@ services:
     networks:
       - clinicsalon-network
 
+  # Serviço de Relatórios
+  report-service:
+    build: ./report-service
+    container_name: report-service
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      client-service:
+        condition: service_started
+      appointment-service:
+        condition: service_started
+      professional-service:
+        condition: service_started
+      loyalty-service:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka
+    networks:
+      - clinicsalon-network
+
 networks:
   clinicsalon-network:
     driver: bridge
