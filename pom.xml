@@ -23,10 +23,13 @@
         <module>api-gateway</module>
         <module>discovery-service</module>
         <module>client-service</module>
+        <module>client-service-client</module>
         <module>appointment-service</module>
-        <!-- Módulos que serão implementados no futuro:
         <module>professional-service</module>
+        <module>professional-service-client</module>
         <module>loyalty-service</module>
+        <module>loyalty-service-client</module>
+        <!-- Módulos que serão implementados no futuro:
         <module>report-service</module>
         -->
     </modules>
