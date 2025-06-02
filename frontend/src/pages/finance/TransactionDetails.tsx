@@ -1,22 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Box, Paper, Typography, Chip, Grid, Button, Divider, 
-  Card, CardContent, CircularProgress, Link
+  Card, CardContent, CircularProgress, Link, Tab, Tabs
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Link as LinkIcon,
-  CheckCircle as CheckCircleIcon,
-  MoneyOff as RefundIcon
+  AttachMoney as MoneyIcon,
+  Event as EventIcon,
+  Receipt as ReceiptIcon
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 
-// Importando serviço real de finanças
-import { getTransactionById, processPayment, processRefund, deleteTransaction, generatePaymentLink, TransactionDTO } from '../../services/financeService';
+// Importando serviços e componentes
+import { getTransactionById, deleteTransaction } from '../../services/financeService';
+import PaymentProcessor from '../../components/finance/PaymentProcessor';
+import AppointmentLinker from '../../components/finance/AppointmentLinker';
+import { formatCurrency, formatDate } from '../../utils/formatters';
 
 // Interface para tipagem de transações
 interface Transaction {
@@ -35,6 +38,8 @@ interface Transaction {
   description: string;
   createdAt: string;
   updatedAt: string;
+  dueDate?: string;
+  paymentDate?: string;
 }
 
 // Dados simulados para desenvolvimento
@@ -155,43 +160,23 @@ const TransactionDetails: React.FC = () => {
     );
   }
 
-  const handleGeneratePaymentLink = async () => {
-    if (!id) return;
-    try {
-      const result = await generatePaymentLink(id);
-      enqueueSnackbar(
-        `Link de pagamento gerado com sucesso: ${result.paymentUrl}`, 
-        { variant: 'success' }
-      );
-      refetch();
-    } catch (error) {
-      console.error('Erro ao gerar link de pagamento:', error);
-      enqueueSnackbar('Erro ao gerar link de pagamento', { variant: 'error' });
-    }
+  // Estado para controlar as abas
+  const [activeTab, setActiveTab] = useState<number>(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
-  const handleProcessPayment = async () => {
-    if (!id) return;
-    try {
-      await processPayment(id);
-      enqueueSnackbar('Pagamento processado com sucesso', { variant: 'success' });
-      refetch();
-    } catch (error) {
-      console.error('Erro ao processar pagamento:', error);
-      enqueueSnackbar('Erro ao processar pagamento', { variant: 'error' });
-    }
+  // Callback para quando o status de pagamento mudar
+  const handlePaymentStatusChanged = () => {
+    refetch();
+    enqueueSnackbar('Status de pagamento atualizado com sucesso', { variant: 'success' });
   };
 
-  const handleProcessRefund = async () => {
-    if (!id) return;
-    try {
-      await processRefund(id);
-      enqueueSnackbar('Reembolso processado com sucesso', { variant: 'info' });
-      refetch();
-    } catch (error) {
-      console.error('Erro ao processar reembolso:', error);
-      enqueueSnackbar('Erro ao processar reembolso', { variant: 'error' });
-    }
+  // Callback para quando um agendamento for vinculado
+  const handleAppointmentLinked = () => {
+    refetch();
+    enqueueSnackbar('Agendamento vinculado com sucesso', { variant: 'success' });
   };
 
   const handleDelete = async () => {
@@ -241,7 +226,7 @@ const TransactionDetails: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Status e ações especiais */}
+      {/* Status e abas de funcionalidades */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={6}>
@@ -261,40 +246,49 @@ const TransactionDetails: React.FC = () => {
             </Box>
           </Grid>
           <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-            {transaction.status === 'PENDING' && transaction.type === 'PAYMENT' && (
-              <>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<LinkIcon />}
-                  onClick={handleGeneratePaymentLink}
-                  sx={{ mr: 1 }}
-                >
-                  Gerar Link de Pagamento
-                </Button>
-                <Button
-                  variant="contained"
-                  color="success"
-                  startIcon={<CheckCircleIcon />}
-                  onClick={handleProcessPayment}
-                >
-                  Processar Pagamento
-                </Button>
-              </>
-            )}
-            {transaction.status === 'PAID' && transaction.type === 'PAYMENT' && (
-              <Button
-                variant="contained"
-                color="info"
-                startIcon={<RefundIcon />}
-                onClick={handleProcessRefund}
-              >
-                Processar Reembolso
-              </Button>
-            )}
+            <Box>
+              <Tabs value={activeTab} onChange={handleTabChange} aria-label="transaction functionality tabs">
+                <Tab icon={<MoneyIcon />} label="Pagamento" id="tab-0" aria-controls="tabpanel-0" />
+                <Tab icon={<EventIcon />} label="Agendamentos" id="tab-1" aria-controls="tabpanel-1" />
+                <Tab icon={<ReceiptIcon />} label="Comprovante" id="tab-2" aria-controls="tabpanel-2" disabled />
+              </Tabs>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
+      
+      {/* Conteúdo baseado na aba selecionada */}
+      <Box role="tabpanel" hidden={activeTab !== 0} id="tabpanel-0" aria-labelledby="tab-0" sx={{ mb: 3 }}>
+        {activeTab === 0 && (
+          <PaymentProcessor 
+            transactionId={transaction.id}
+            currentStatus={transaction.status}
+            paymentMethod={transaction.paymentMethod}
+            amount={transaction.amount}
+            onStatusChange={handlePaymentStatusChanged}
+          />
+        )}
+      </Box>
+      
+      <Box role="tabpanel" hidden={activeTab !== 1} id="tabpanel-1" aria-labelledby="tab-1" sx={{ mb: 3 }}>
+        {activeTab === 1 && (
+          <AppointmentLinker 
+            transactionId={transaction.id}
+            clientId={transaction.clientId ? Number(transaction.clientId) : null}
+            onAppointmentLinked={handleAppointmentLinked}
+          />
+        )}
+      </Box>
+      
+      <Box role="tabpanel" hidden={activeTab !== 2} id="tabpanel-2" aria-labelledby="tab-2" sx={{ mb: 3 }}>
+        {activeTab === 2 && (
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" align="center" color="text.secondary">
+              Funcionalidade de comprovante em desenvolvimento
+            </Typography>
+          </Paper>
+        )}
+      </Box>
 
       {/* Detalhes da transação */}
       <Grid container spacing={3}>
@@ -330,7 +324,7 @@ const TransactionDetails: React.FC = () => {
                 </Grid>
                 <Grid item xs={8}>
                   <Typography fontWeight="bold">
-                    R$ {transaction.amount.toFixed(2)}
+                    {formatCurrency(transaction.amount)}
                   </Typography>
                 </Grid>
                 
@@ -438,7 +432,7 @@ const TransactionDetails: React.FC = () => {
                 </Grid>
                 <Grid item xs={8}>
                   <Typography>
-                    {new Date(transaction.createdAt).toLocaleString('pt-BR')}
+                    {formatDate(transaction.createdAt, "dd/MM/yyyy 'às' HH:mm")}
                   </Typography>
                 </Grid>
 
@@ -447,9 +441,35 @@ const TransactionDetails: React.FC = () => {
                 </Grid>
                 <Grid item xs={8}>
                   <Typography>
-                    {new Date(transaction.updatedAt).toLocaleString('pt-BR')}
+                    {formatDate(transaction.updatedAt, "dd/MM/yyyy 'às' HH:mm")}
                   </Typography>
                 </Grid>
+                
+                {transaction.dueDate && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="text.secondary">Vencimento:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>
+                        {formatDate(transaction.dueDate)}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
+                
+                {transaction.paymentDate && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="text.secondary">Data de Pagamento:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>
+                        {formatDate(transaction.paymentDate, "dd/MM/yyyy 'às' HH:mm")}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
               </Grid>
             </CardContent>
           </Card>

@@ -16,6 +16,7 @@ public interface ProfessionalMapper {
     @Mapping(target = "isActive", constant = "true")
     Professional toEntity(ProfessionalRequest request);
     
+    // A propriedade correta é isActive
     ProfessionalResponse toResponse(Professional professional);
     
     @Mapping(target = "id", ignore = true)

@@ -20,5 +20,6 @@ public class ReportResponse {
     private byte[] reportContent;
     private LocalDateTime generatedAt;
     private String status;
+    private String message;
     private Long fileSize;
 }

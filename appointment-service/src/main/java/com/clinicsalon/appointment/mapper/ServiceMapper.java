@@ -12,6 +12,9 @@ public interface ServiceMapper {
 
     ServiceResponse toResponse(ServiceEntity service);
     
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     ServiceEntity toEntity(ServiceRequest request);
     
     @Mapping(target = "id", ignore = true)

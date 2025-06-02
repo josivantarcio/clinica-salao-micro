@@ -70,6 +70,18 @@ public class Appointment {
         return status;
     }
     
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
+    }
+    
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+    
     public void setStatus(AppointmentStatus status) {
         this.status = status;
     }
@@ -96,17 +108,5 @@ public class Appointment {
     
     public void setClientId(Long clientId) {
         this.clientId = clientId;
-    }
-    
-    @PrePersist
-    public void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
-        createdAt = now;
-        updatedAt = now;
-    }
-    
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

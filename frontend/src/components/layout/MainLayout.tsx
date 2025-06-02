@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import AIChat from '../chat/AIChat';
 
 const drawerWidth = 260;
 
@@ -96,6 +97,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     logout();
     navigate('/login');
     handleClose();
+  };
+  
+  const handleScheduleAppointment = (date: string, service: string) => {
+    // Navegar para a página de agendamentos com os parâmetros pré-preenchidos
+    navigate(`/agendamentos/novo?data=${date}&servico=${encodeURIComponent(service)}`);
+  };
+  
+  const handleSendPaymentLink = (amount: number, description: string) => {
+    // Navegar para a página de transações com os parâmetros pré-preenchidos
+    navigate(`/financeiro/nova-transacao?valor=${amount}&descricao=${encodeURIComponent(description)}`);
   };
 
   const handleThemeToggle = () => {
@@ -461,6 +472,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           {children}
         </Paper>
       </Box>
+      
+      {/* Chat com IA */}
+      {isAuthenticated && (
+        <AIChat 
+          clientId={user?.id}
+          clientName={user?.name}
+          fixedPosition={true}
+          onScheduleAppointment={handleScheduleAppointment}
+          onSendPaymentLink={handleSendPaymentLink}
+        />
+      )}
     </Box>
   );
 };

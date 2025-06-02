@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "professional-service")
+@FeignClient(name = "professional-service", fallbackFactory = ProfessionalServiceClientFallbackFactory.class)
 public interface ProfessionalServiceClient {
 
     @GetMapping("/api/professionals/{id}")

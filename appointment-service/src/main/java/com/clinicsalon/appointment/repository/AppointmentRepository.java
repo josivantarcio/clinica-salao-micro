@@ -41,4 +41,25 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     
     List<Appointment> findByClientIdAndStartTimeAfterOrderByStartTime(
             Long clientId, LocalDateTime startTime);
+    
+    /**
+     * Encontra agendamentos com status específico e dentro de um intervalo de tempo de início
+     * Usado pelo agendador para encontrar agendamentos para enviar lembretes
+     */
+    List<Appointment> findByStatusAndStartTimeBetween(
+            AppointmentStatus status, LocalDateTime startTime, LocalDateTime endTime);
+    
+    /**
+     * Encontra agendamentos com status específico e dentro de um intervalo de tempo de término
+     * Usado pelo agendador para marcar agendamentos como "No Show" quando não comparecidos
+     */
+    List<Appointment> findByStatusAndEndTimeBetween(
+            AppointmentStatus status, LocalDateTime startTime, LocalDateTime endTime);
+    
+    /**
+     * Encontra agendamentos com status específico e criados antes de uma determinada data
+     * Usado pelo agendador para cancelar agendamentos pendentes que não foram confirmados
+     */
+    List<Appointment> findByStatusAndCreatedAtBefore(
+            AppointmentStatus status, LocalDateTime createdAt);
 }

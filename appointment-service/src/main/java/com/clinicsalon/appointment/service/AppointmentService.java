@@ -5,6 +5,7 @@ import com.clinicsalon.appointment.client.ProfessionalServiceClient;
 import com.clinicsalon.appointment.dto.AppointmentRequest;
 import com.clinicsalon.appointment.dto.AppointmentResponse;
 import com.clinicsalon.appointment.dto.AppointmentServiceRequest;
+import com.clinicsalon.appointment.dto.AppointmentServiceResponse;
 import com.clinicsalon.appointment.exception.BusinessException;
 import com.clinicsalon.appointment.exception.ResourceNotFoundException;
 import com.clinicsalon.appointment.mapper.AppointmentMapper;
@@ -29,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -44,6 +46,9 @@ public class AppointmentService {
     private final AppointmentServiceMapper appointmentServiceMapper;
     private final ClientServiceClient clientServiceClient;
     private final ProfessionalServiceClient professionalServiceClient;
+    private final AppointmentPaymentService paymentService;
+    private final AppointmentNotificationService notificationService;
+    private final LoyaltyIntegrationService loyaltyService;
 
     @Transactional(readOnly = true)
     public Page<AppointmentResponse> findAll(Pageable pageable) {
@@ -120,6 +125,15 @@ public class AppointmentService {
         appointmentServiceRepository.saveAll(appointmentServices);
         log.info("Agendamento criado com ID: {}", appointment.getId());
         
+        // Tentar gerar link de pagamento automaticamente
+        try {
+            paymentService.createPaymentLink(appointment.getId());
+            log.info("Link de pagamento gerado para o agendamento ID: {}", appointment.getId());
+        } catch (Exception e) {
+            log.warn("Não foi possível gerar o link de pagamento para o agendamento ID: {}: {}", 
+                    appointment.getId(), e.getMessage());
+        }
+        
         return enrichAppointmentResponse(appointment);
     }
 
@@ -171,6 +185,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponse updateStatus(Long id, AppointmentStatus status) {
         Appointment appointment = getAppointmentById(id);
+        AppointmentStatus oldStatus = appointment.getStatus();
         
         // Validações de mudança de status
         if ((status == AppointmentStatus.IN_PROGRESS || status == AppointmentStatus.COMPLETED)
@@ -189,6 +204,12 @@ public class AppointmentService {
         appointment = appointmentRepository.save(appointment);
         
         log.info("Status do agendamento ID: {} atualizado para: {}", id, status);
+        
+        // Enviar notificações apropriadas com base na mudança de status
+        handleStatusChangeNotifications(appointment, oldStatus, status);
+        
+        // Processar pagamento ou reembolso conforme necessário
+        handlePaymentForStatusChange(appointment, status);
         
         return enrichAppointmentResponse(appointment);
     }
@@ -251,6 +272,86 @@ public class AppointmentService {
             response.setProfessionalName("Profissional não encontrado");
         }
         
+        try {
+            // Buscar os serviços associados ao agendamento
+            List<AppointmentServiceItem> serviceItems = appointmentServiceRepository.findByAppointmentId(appointment.getId());
+            
+            if (serviceItems != null && !serviceItems.isEmpty()) {
+                List<AppointmentServiceResponse> serviceResponses = serviceItems.stream()
+                        .map(appointmentServiceMapper::toResponse)
+                        .collect(Collectors.toList());
+                response.setServices(serviceResponses);
+            } else {
+                response.setServices(new ArrayList<>());
+            }
+        } catch (Exception e) {
+            log.error("Erro ao buscar serviços do agendamento: {}", e.getMessage());
+            response.setServices(new ArrayList<>());
+        }
+        
         return response;
+    }
+    
+    /**
+     * Lida com notificações baseadas em mudanças de status do agendamento
+     */
+    private void handleStatusChangeNotifications(Appointment appointment, AppointmentStatus oldStatus, AppointmentStatus newStatus) {
+        try {
+            if (newStatus == AppointmentStatus.CONFIRMED && oldStatus != AppointmentStatus.CONFIRMED) {
+                notificationService.sendAppointmentConfirmationNotification(appointment);
+            } else if (newStatus == AppointmentStatus.CANCELLED && oldStatus != AppointmentStatus.CANCELLED) {
+                notificationService.sendAppointmentCancellationNotification(appointment);
+            } else if (newStatus == AppointmentStatus.COMPLETED && oldStatus != AppointmentStatus.COMPLETED) {
+                // Enviar notificação de conclusão e solicitar avaliação
+            }
+        } catch (Exception e) {
+            log.error("Erro ao enviar notificação para agendamento ID {}: {}", appointment.getId(), e.getMessage());
+        }
+    }
+    
+    /**
+     * Lida com pagamentos baseados em mudanças de status do agendamento
+     */
+    private void handlePaymentForStatusChange(Appointment appointment, AppointmentStatus newStatus) {
+        try {
+            if (newStatus == AppointmentStatus.CANCELLED || newStatus == AppointmentStatus.NO_SHOW) {
+                // Verificar status do pagamento e processar reembolso se necessário
+                Map<String, Object> paymentStatus = paymentService.getPaymentStatus(appointment.getId());
+                
+                if (paymentStatus != null && "PAID".equals(paymentStatus.get("status"))) {
+                    paymentService.processRefund(appointment.getId());
+                    notificationService.sendRefundProcessedNotification(appointment);
+                    log.info("Reembolso processado para o agendamento ID: {}", appointment.getId());
+                }
+            } else if (newStatus == AppointmentStatus.COMPLETED) {
+                // Verificar status do pagamento
+                Map<String, Object> paymentStatus = paymentService.getPaymentStatus(appointment.getId());
+                
+                if (paymentStatus != null && "PAID".equals(paymentStatus.get("status"))) {
+                    // Atualizar sistema de fidelidade com os pontos do agendamento
+                    try {
+                        // Garantir que o cliente tenha uma conta de fidelidade
+                        loyaltyService.ensureLoyaltyAccount(appointment.getClientId());
+                        
+                        // Adicionar pontos baseados no valor do agendamento
+                        Map<String, Object> loyaltyResult = loyaltyService.addLoyaltyPoints(appointment);
+                        
+                        if ("SUCCESS".equals(loyaltyResult.get("status"))) {
+                            log.info("Pontos de fidelidade adicionados para o cliente ID: {} pelo agendamento ID: {}", 
+                                    appointment.getClientId(), appointment.getId());
+                            
+                            // Notificar o cliente sobre os pontos adicionados
+                            notificationService.sendPaymentApprovedNotification(appointment);
+                        }
+                    } catch (Exception e) {
+                        log.error("Erro ao processar pontos de fidelidade para o agendamento ID {}: {}", 
+                                appointment.getId(), e.getMessage());
+                        // Falha no sistema de fidelidade não deve impedir a conclusão do agendamento
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erro ao processar pagamento para agendamento ID {}: {}", appointment.getId(), e.getMessage());
+        }
     }
 }

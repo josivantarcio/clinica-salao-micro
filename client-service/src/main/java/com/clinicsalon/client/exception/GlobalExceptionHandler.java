@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,8 +24,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers, 
-            HttpStatusCode status, WebRequest request) {
+            @NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, 
+            @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());

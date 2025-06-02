@@ -59,11 +59,8 @@
             <artifactId>client-service-client</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.clinicsalon</groupId>
-            <artifactId>appointment-service-client</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+        <!-- Dependência appointment-service-client removida pois ainda não foi implementada -->
+        <!-- Será adicionada quando o módulo estiver disponível -->
         <dependency>
             <groupId>com.clinicsalon</groupId>
             <artifactId>professional-service-client</artifactId>

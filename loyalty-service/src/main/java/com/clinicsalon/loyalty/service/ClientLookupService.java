@@ -3,6 +3,7 @@ package com.clinicsalon.loyalty.service;
 import com.clinicsalon.client.client.ClientClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -26,7 +27,17 @@ public class ClientLookupService {
         log.info("Looking up client name for ID: {}", clientId);
         
         // Chamada real ao cliente Feign para buscar o nome do cliente
-        return clientClient.getClientById(clientId).getBody().getName();
+        ResponseEntity<?> response = clientClient.getClientById(clientId);
+        if (response != null && response.getBody() != null) {
+            // Assumindo que o response body é um Map<String, Object>
+            @SuppressWarnings("unchecked")
+            Map<String, Object> clientData = (Map<String, Object>) response.getBody();
+            if (clientData.containsKey("name")) {
+                return (String) clientData.get("name");
+            }
+        }
+        // Retornar um nome genérico se o response ou body for null ou não tiver nome
+        return "Cliente " + clientId;
     }
     
     /**

@@ -4,12 +4,15 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { QueryProvider } from './providers/QueryProvider';
 import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import theme from './styles/theme';
 import MainLayout from './components/layout/MainLayout';
+import RoleBasedRoute from './components/auth/RoleBasedRoute';
 
 // Pages
 const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Unauthorized = React.lazy(() => import('./pages/Unauthorized'));
 const Clients = React.lazy(() => import('./pages/clients/Clients'));
 const ClientDetails = React.lazy(() => import('./pages/clients/ClientDetails'));
 const ClientForm = React.lazy(() => import('./pages/clients/ClientForm'));
@@ -20,7 +23,7 @@ const TransactionDetails = React.lazy(() => import('./pages/finance/TransactionD
 const TransactionForm = React.lazy(() => import('./pages/finance/TransactionForm'));
 const Revenue = React.lazy(() => import('./pages/finance/Revenue'));
 
-// Protected Route Component
+// Protected Route Component para compatibilidade com código existente
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
@@ -38,8 +41,9 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
                 
-                {/* Protected Routes */}
+                {/* Protected Routes com Layout Principal */}
                 <Route
                   path="/"
                   element={
@@ -48,18 +52,25 @@ function App() {
                     </ProtectedRoute>
                   }
                 >
+                  {/* Dashboard - Acessível a todos usuários autenticados */}
                   <Route index element={<Dashboard />} />
-                  <Route path="clients" element={<Clients />} />
-                  <Route path="clients/new" element={<ClientForm />} />
-                  <Route path="clients/:id" element={<ClientDetails />} />
-                  <Route path="clients/:id/edit" element={<ClientForm />} />
                   
-                  {/* Rotas de Finanças */}
-                  <Route path="finance" element={<Transactions />} />
-                  <Route path="finance/transactions/new" element={<TransactionForm />} />
-                  <Route path="finance/transactions/:id" element={<TransactionDetails />} />
-                  <Route path="finance/transactions/:id/edit" element={<TransactionForm />} />
-                  <Route path="finance/revenue" element={<Revenue />} />
+                  {/* Rotas de Clientes - Acesso para atendentes e administradores */}
+                  <Route element={<RoleBasedRoute requiredRoles={['ROLE_ATTENDANT', 'ROLE_ADMIN']} />}>
+                    <Route path="clients" element={<Clients />} />
+                    <Route path="clients/new" element={<ClientForm />} />
+                    <Route path="clients/:id" element={<ClientDetails />} />
+                    <Route path="clients/:id/edit" element={<ClientForm />} />
+                  </Route>
+                  
+                  {/* Rotas de Finanças - Acesso restrito para administradores e financeiro */}
+                  <Route element={<RoleBasedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_FINANCE']} />}>
+                    <Route path="finance" element={<Transactions />} />
+                    <Route path="finance/transactions/new" element={<TransactionForm />} />
+                    <Route path="finance/transactions/:id" element={<TransactionDetails />} />
+                    <Route path="finance/transactions/:id/edit" element={<TransactionForm />} />
+                    <Route path="finance/revenue" element={<Revenue />} />
+                  </Route>
                 </Route>
                 
                 {/* 404 Route */}

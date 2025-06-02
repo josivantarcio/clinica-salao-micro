@@ -137,32 +137,97 @@ const getStatusColor = (status: string) => {
 const Transactions: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Filtros avançados
+  const [filters, setFilters] = useState({
+    status: '',
+    startDate: '',
+    endDate: '',
+    minAmount: '',
+    maxAmount: '',
+    paymentMethod: ''
+  });
+  
+  // Estado para controlar a exibição do painel de filtros
+  const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   // Buscando dados do backend com fallback para dados simulados
-  const { data: transactions, isLoading, error, refetch } = useQuery({
-    queryKey: ['transactions'],
+  const { data: transactionsData, isLoading, error, refetch } = useQuery({
+    queryKey: ['transactions', page, rowsPerPage, searchTerm, filters],
     queryFn: async () => {
       try {
         // Tenta buscar dados do backend
-        return await getAllTransactions();
-      } catch (error) {
-        console.error('Erro ao buscar transações do backend:', error);
+        return await getAllTransactions(
+          page, 
+          rowsPerPage, 
+          searchTerm,
+          filters.status || undefined,
+          filters.startDate || undefined,
+          filters.endDate || undefined,
+          filters.minAmount ? parseFloat(filters.minAmount) : undefined,
+          filters.maxAmount ? parseFloat(filters.maxAmount) : undefined,
+          filters.paymentMethod || undefined
+        );
+      } catch (err) {
+        console.error('Erro ao buscar transações:', err);
         // Fallback para dados simulados
-        return mockTransactions;
+        // Aplicando filtros localmente nos dados simulados
+        let filteredData = Object.values(mockTransactions);
+        
+        if (searchTerm) {
+          const searchLower = searchTerm.toLowerCase();
+          filteredData = filteredData.filter(t => 
+            t.description.toLowerCase().includes(searchLower) ||
+            t.clientName.toLowerCase().includes(searchLower)
+          );
+        }
+        
+        if (filters.status) {
+          filteredData = filteredData.filter(t => t.status === filters.status);
+        }
+        
+        if (filters.paymentMethod) {
+          filteredData = filteredData.filter(t => t.paymentMethod === filters.paymentMethod);
+        }
+        
+        if (filters.startDate) {
+          const startDate = new Date(filters.startDate);
+          filteredData = filteredData.filter(t => new Date(t.createdAt) >= startDate);
+        }
+        
+        if (filters.endDate) {
+          const endDate = new Date(filters.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          filteredData = filteredData.filter(t => new Date(t.createdAt) <= endDate);
+        }
+        
+        if (filters.minAmount) {
+          const minAmount = parseFloat(filters.minAmount);
+          filteredData = filteredData.filter(t => t.amount >= minAmount);
+        }
+        
+        if (filters.maxAmount) {
+          const maxAmount = parseFloat(filters.maxAmount);
+          filteredData = filteredData.filter(t => t.amount <= maxAmount);
+        }
+        
+        // Converte array filtrado de volta para objeto com IDs como chaves
+        const filteredMockTransactions: Record<string, Transaction> = {};
+        filteredData.forEach(t => { filteredMockTransactions[t.id] = t; });
+        
+        return {
+          data: filteredMockTransactions,
+          page: page,
+          size: rowsPerPage,
+          totalElements: filteredData.length,
+          totalPages: Math.ceil(filteredData.length / rowsPerPage)
+        };
       }
-    },
-    initialData: mockTransactions
+    }
   });
-
-  const filteredTransactions = transactions.filter(
-    (transaction) =>
-      transaction.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -173,8 +238,38 @@ const Transactions: React.FC = () => {
     setPage(0);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
+  // Busca de transações
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    setPage(0); // Reset para a primeira página ao buscar
+  };
+
+  // Limpar busca
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
+  
+  // Atualizar filtros
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setPage(0); // Reset para a primeira página ao filtrar
+  };
+  
+  // Limpar todos os filtros
+  const handleClearFilters = () => {
+    setFilters({
+      status: '',
+      startDate: '',
+      endDate: '',
+      minAmount: '',
+      maxAmount: '',
+      paymentMethod: ''
+    });
+    setSearchTerm('');
     setPage(0);
   };
 
@@ -237,32 +332,156 @@ const Transactions: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4">Transações Financeiras</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/finance/transactions/new')}
-        >
-          Nova Transação
-        </Button>
       </Box>
 
-      <Paper sx={{ width: '100%', mb: 3 }}>
-        <Box sx={{ p: 2, pb: 0 }}>
+      {/* Barra de busca, filtros e botões */}
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: 500 }}>
           <TextField
-            fullWidth
             variant="outlined"
-            placeholder="Buscar por cliente, descrição ou ID"
-            value={searchQuery}
-            onChange={handleSearchChange}
+            placeholder="Buscar transações..."
+            fullWidth
+            value={searchTerm}
+            onChange={handleSearch}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon />
                 </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleClearSearch} size="small">
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
               )
             }}
-            sx={{ mb: 2 }}
+            size="small"
           />
+        </Box>
+        <Box>
+          <Button
+            variant="outlined"
+            startIcon={showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
+            onClick={() => setShowFilters(!showFilters)}
+            sx={{ mr: 1 }}
+          >
+            {showFilters ? 'Ocultar Filtros' : 'Filtros Avançados'}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/finance/transactions/new')}
+          >
+            Nova Transação
+          </Button>
+        </Box>
+      </Box>
+      
+      {/* Painel de filtros avançados */}
+      <Collapse in={showFilters}>
+        <Paper sx={{ p: 2, mb: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  name="status"
+                  value={filters.status}
+                  onChange={handleFilterChange as any}
+                  label="Status"
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="PENDING">Pendente</MenuItem>
+                  <MenuItem value="PAID">Pago</MenuItem>
+                  <MenuItem value="REFUNDED">Reembolsado</MenuItem>
+                  <MenuItem value="CANCELLED">Cancelado</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Método de Pagamento</InputLabel>
+                <Select
+                  name="paymentMethod"
+                  value={filters.paymentMethod}
+                  onChange={handleFilterChange as any}
+                  label="Método de Pagamento"
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="CREDIT_CARD">Cartão de Crédito</MenuItem>
+                  <MenuItem value="DEBIT_CARD">Cartão de Débito</MenuItem>
+                  <MenuItem value="PIX">PIX</MenuItem>
+                  <MenuItem value="MONEY">Dinheiro</MenuItem>
+                  <MenuItem value="BANK_SLIP">Boleto</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                label="Data Inicial"
+                type="date"
+                name="startDate"
+                value={filters.startDate}
+                onChange={handleFilterChange}
+                fullWidth
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                label="Data Final"
+                type="date"
+                name="endDate"
+                value={filters.endDate}
+                onChange={handleFilterChange}
+                fullWidth
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                label="Valor Mínimo"
+                type="number"
+                name="minAmount"
+                value={filters.minAmount}
+                onChange={handleFilterChange}
+                fullWidth
+                size="small"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                label="Valor Máximo"
+                type="number"
+                name="maxAmount"
+                value={filters.maxAmount}
+                onChange={handleFilterChange}
+                fullWidth
+                size="small"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <Button onClick={handleClearFilters} startIcon={<ClearAllIcon />}>
+                Limpar Filtros
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Collapse>
+
+      <Paper sx={{ width: '100%', mb: 3 }}>
+        <Box sx={{ p: 2, pb: 0 }}>
         </Box>
 
         <TableContainer>

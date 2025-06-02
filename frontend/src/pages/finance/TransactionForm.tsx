@@ -14,11 +14,8 @@ import { useSnackbar } from 'notistack';
 
 // Importando serviços reais
 import { getTransactionById, createTransaction, updateTransaction, TransactionDTO } from '../../services/financeService';
-
-// Estes serviços seriam implementados em arquivos separados
-// Para agora, usaremos os dados simulados para clientes e agendamentos
-// import { getAllClients } from '../../services/clientService';
-// import { getAllAppointments } from '../../services/appointmentService';
+import { getClients } from '../../services/clientService';
+import { getAppointments, getAppointmentsByClient } from '../../services/appointmentService';
 
 // Interfaces para tipagem
 interface Transaction {
@@ -107,20 +104,49 @@ const TransactionForm: React.FC = () => {
     enabled: isEditMode && !!id
   });
   
-  // Para clientes e agendamentos, usamos dados simulados por enquanto
-  // Em um ambiente real, faríamos a integração com outros serviços
-
-  const { data: clients = [], isLoading: isLoadingClients } = useQuery({
+  // Buscando clientes do backend com fallback para dados simulados
+  const { data: clientsResponse, isLoading: isLoadingClients } = useQuery({
     queryKey: ['clients'],
-    queryFn: () => Promise.resolve(mockClients),
-    initialData: mockClients
+    queryFn: async () => {
+      try {
+        // Tenta buscar dados do backend
+        return await getClients(0, 100);
+      } catch (error) {
+        console.error('Erro ao buscar clientes:', error);
+        // Fallback para dados simulados
+        return { data: mockClients, page: 0, size: mockClients.length, totalElements: mockClients.length, totalPages: 1 };
+      }
+    }
   });
+  
+  // Usando clients do clientsResponse
+  const clients = clientsResponse?.data || [];
+  
+  // Buscando agendamentos do backend com fallback para dados simulados
+  const { data: appointmentsResponse, isLoading: isLoadingAppointments } = useQuery({
+    queryKey: ['appointments', formData.clientId],
+    queryFn: async () => {
+      try {
+        // Se tiver um cliente selecionado, busca os agendamentos desse cliente
+        if (formData.clientId) {
+          return await getAppointmentsByClient(formData.clientId, 0, 100);
+        } else {
+          // Senão, busca todos os agendamentos
+          return await getAppointments(0, 100);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar agendamentos:', error);
+        // Fallback para dados simulados
+        return { data: mockAppointments, page: 0, size: mockAppointments.length, totalElements: mockAppointments.length, totalPages: 1 };
+      }
+    },
+    enabled: !isLoadingClients // Só busca agendamentos depois de carregar clientes
+  });
+  
+  // Usando appointments do appointmentsResponse
+  const appointments = appointmentsResponse?.data || [];
 
-  const { data: appointments = [], isLoading: isLoadingAppointments } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => Promise.resolve(mockAppointments),
-    initialData: mockAppointments
-  });
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (isEditMode && transactionData) {
@@ -129,15 +155,15 @@ const TransactionForm: React.FC = () => {
   }, [isEditMode, transactionData]);
 
   // Filtrar agendamentos baseados no cliente selecionado
+  // Refetch agendamentos quando mudar o cliente selecionado
   useEffect(() => {
-    if (formData.clientId && appointments.length > 0) {
-      const filtered = appointments.filter(apt => apt.clientId === formData.clientId);
-      setFilteredAppointments(filtered);
+    // Atualiza os agendamentos filtrados baseados no cliente selecionado
+    if (formData.clientId) {
+      // Invalidate a query para forçar a busca de novos agendamentos
+      queryClient.invalidateQueries({ queryKey: ['appointments', formData.clientId] });
       
-      // Se o agendamento atual não pertence ao cliente selecionado, limpa a seleção
-      if (formData.appointmentId && !filtered.some(apt => apt.id === formData.appointmentId)) {
-        setFormData(prev => ({ ...prev, appointmentId: '' }));
-      }
+      // Atualiza agendamentos filtrados
+      setFilteredAppointments(appointments.filter(apt => apt.clientId === formData.clientId));
     } else {
       setFilteredAppointments([]);
     }

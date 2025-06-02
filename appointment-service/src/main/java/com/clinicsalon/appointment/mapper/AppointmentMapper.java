@@ -16,6 +16,12 @@ public interface AppointmentMapper {
     @Mapping(target = "updatedAt", ignore = true)
     Appointment toEntity(AppointmentRequest request);
 
+    // Propriedades clientName e professionalName devem ser preenchidas manualmente
+    // pois não temos acesso direto aos nomes no modelo Appointment
+    @Mapping(target = "clientName", ignore = true)
+    @Mapping(target = "professionalName", ignore = true)
+    @Mapping(target = "totalPrice", source = "price")
+    @Mapping(target = "services", ignore = true) // Será preenchido pelo serviço
     AppointmentResponse toResponse(Appointment appointment);
     
     @Mapping(target = "clientName", ignore = true)
