@@ -21,6 +21,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     
     Page<Appointment> findByStatus(AppointmentStatus status, Pageable pageable);
     
+    /**
+     * Encontra agendamentos de um cliente com um determinado status
+     * Usado para encontrar agendamentos pendentes de pagamento de um cliente
+     */
+    Page<Appointment> findByClientIdAndStatus(Long clientId, AppointmentStatus status, Pageable pageable);
+    
     @Query("SELECT a FROM Appointment a WHERE " +
            "a.professionalId = :professionalId AND " +
            "a.startTime >= :startDate AND " +

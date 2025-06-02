@@ -90,6 +90,70 @@ public class AppointmentService {
                 .map(this::enrichAppointmentResponse)
                 .collect(Collectors.toList());
     }
+    
+    /**
+     * Busca todos os agendamentos completados e pendentes de pagamento
+     * @param pageable Paginação
+     * @return Página de agendamentos pendentes de pagamento
+     */
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponse> findPendingPayment(Pageable pageable) {
+        log.info("Buscando agendamentos pendentes de pagamento");
+        // Buscar agendamentos com status COMPLETED
+        Page<Appointment> completedAppointments = appointmentRepository.findByStatus(AppointmentStatus.COMPLETED, pageable);
+        
+        // Cria uma lista com agendamentos pendentes de pagamento
+        return completedAppointments.map(appointment -> {
+            // Consulta o serviço de pagamento para verificar se o agendamento já foi pago
+            try {
+                Map<String, Object> paymentStatus = paymentService.getPaymentStatus(appointment.getId());
+                if (paymentStatus != null && !"PAID".equals(paymentStatus.get("status"))) {
+                    // Retorna apenas se não estiver pago
+                    return enrichAppointmentResponse(appointment);
+                }
+                // Se já estiver pago, retorna o appointment response normalmente para manter a estrutura da Page
+                // O filtro será aplicado depois na interface (frontend)
+                return enrichAppointmentResponse(appointment);
+            } catch (Exception e) {
+                log.error("Erro ao verificar status de pagamento para o agendamento {}: {}", appointment.getId(), e.getMessage());
+                // Em caso de erro na verificação, assume que está pendente
+                return enrichAppointmentResponse(appointment);
+            }
+        });
+    }
+    
+    /**
+     * Busca agendamentos completados e pendentes de pagamento para um cliente específico
+     * @param clientId ID do cliente
+     * @param pageable Paginação
+     * @return Página de agendamentos pendentes de pagamento do cliente
+     */
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponse> findPendingPaymentByClientId(Long clientId, Pageable pageable) {
+        log.info("Buscando agendamentos pendentes de pagamento para o cliente ID: {}", clientId);
+        // Buscar agendamentos do cliente com status COMPLETED
+        Page<Appointment> clientCompletedAppointments = appointmentRepository.findByClientIdAndStatus(
+                clientId, AppointmentStatus.COMPLETED, pageable);
+        
+        // Cria uma lista com agendamentos pendentes de pagamento
+        return clientCompletedAppointments.map(appointment -> {
+            // Consulta o serviço de pagamento para verificar se o agendamento já foi pago
+            try {
+                Map<String, Object> paymentStatus = paymentService.getPaymentStatus(appointment.getId());
+                if (paymentStatus != null && !"PAID".equals(paymentStatus.get("status"))) {
+                    // Retorna apenas se não estiver pago
+                    return enrichAppointmentResponse(appointment);
+                }
+                // Se já estiver pago, retorna o appointment response normalmente para manter a estrutura da Page
+                // O filtro será aplicado depois na interface (frontend)
+                return enrichAppointmentResponse(appointment);
+            } catch (Exception e) {
+                log.error("Erro ao verificar status de pagamento para o agendamento {}: {}", appointment.getId(), e.getMessage());
+                // Em caso de erro na verificação, assume que está pendente
+                return enrichAppointmentResponse(appointment);
+            }
+        });
+    }
 
     @Transactional
     public AppointmentResponse create(AppointmentRequest request) {

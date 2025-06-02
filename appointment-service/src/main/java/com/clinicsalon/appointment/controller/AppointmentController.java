@@ -94,4 +94,36 @@ public class AppointmentController {
             @Parameter(description = "Novo status") @RequestParam AppointmentStatus status) {
         return ResponseEntity.ok(appointmentService.updateStatus(id, status));
     }
+
+    @Operation(summary = "Concluir agendamento", description = "Marca um agendamento como concluído")
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<AppointmentResponse> completeAppointment(
+            @Parameter(description = "ID do agendamento") @PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.updateStatus(id, AppointmentStatus.COMPLETED));
+    }
+
+    @Operation(summary = "Cancelar agendamento", description = "Marca um agendamento como cancelado")
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<AppointmentResponse> cancelAppointment(
+            @Parameter(description = "ID do agendamento") @PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.updateStatus(id, AppointmentStatus.CANCELLED));
+    }
+
+    @Operation(summary = "Marcar não comparecimento", description = "Marca um agendamento como não comparecido")
+    @PatchMapping("/{id}/no-show")
+    public ResponseEntity<AppointmentResponse> markNoShow(
+            @Parameter(description = "ID do agendamento") @PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.updateStatus(id, AppointmentStatus.NO_SHOW));
+    }
+
+    @Operation(summary = "Buscar agendamentos pendentes de pagamento", description = "Retorna uma lista paginada de agendamentos completados e pendentes de pagamento")
+    @GetMapping("/pending-payment")
+    public ResponseEntity<Page<AppointmentResponse>> findPendingPaymentAppointments(
+            @Parameter(description = "ID do cliente (opcional)") @RequestParam(required = false) Long clientId,
+            Pageable pageable) {
+        if (clientId != null) {
+            return ResponseEntity.ok(appointmentService.findPendingPaymentByClientId(clientId, pageable));
+        }
+        return ResponseEntity.ok(appointmentService.findPendingPayment(pageable));
+    }
 }

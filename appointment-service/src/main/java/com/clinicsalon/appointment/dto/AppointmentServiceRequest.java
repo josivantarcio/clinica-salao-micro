@@ -22,6 +22,10 @@ public class AppointmentServiceRequest {
     @Positive(message = "O ID do serviço deve ser positivo")
     private Long serviceId;
     
+    @NotNull(message = "A quantidade do serviço é obrigatória")
+    @Positive(message = "A quantidade do serviço deve ser positiva")
+    private Integer quantity = 1; // Valor padrão de 1
+    
     @Size(max = 255, message = "As observações do serviço devem ter no máximo 255 caracteres")
     private String notes;
     

@@ -4,23 +4,28 @@ server:
 spring:
   application:
     name: appointment-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
   datasource:
-    url: jdbc:postgresql://localhost:5433/appointment_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:appointment_db;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:db/migration
+    enabled: false
     
 eureka:
   client:
@@ -49,40 +54,40 @@ resilience4j:
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
         minimumNumberOfCalls: 5
+        waitDurationInOpenState: 60s
         permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 10s
         failureRateThreshold: 50
       professionalService:
         registerHealthIndicator: true
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
         minimumNumberOfCalls: 5
+        waitDurationInOpenState: 60s
         permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 10s
-        failureRateThreshold: 50
-      notificationService:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        slidingWindowType: COUNT_BASED
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 10s
         failureRateThreshold: 50
       financeService:
         registerHealthIndicator: true
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
         minimumNumberOfCalls: 5
+        waitDurationInOpenState: 60s
         permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 10s
         failureRateThreshold: 50
       loyaltyService:
         registerHealthIndicator: true
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
         minimumNumberOfCalls: 5
+        waitDurationInOpenState: 60s
         permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+      notificationService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 60s
+        permittedNumberOfCallsInHalfOpenState: 3
         failureRateThreshold: 50
   retry:
     instances:
@@ -96,17 +101,17 @@ resilience4j:
         waitDuration: 1s
         enableExponentialBackoff: true
         exponentialBackoffMultiplier: 2
-      notificationService:
-        maxAttempts: 3
-        waitDuration: 1s
-        enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2
       financeService:
         maxAttempts: 3
         waitDuration: 1s
         enableExponentialBackoff: true
         exponentialBackoffMultiplier: 2
       loyaltyService:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      notificationService:
         maxAttempts: 3
         waitDuration: 1s
         enableExponentialBackoff: true
@@ -119,12 +124,12 @@ resilience4j:
       professionalService:
         maxConcurrentCalls: 10
         maxWaitDuration: 10ms
-      notificationService:
-        maxConcurrentCalls: 20
-        maxWaitDuration: 10ms
       financeService:
         maxConcurrentCalls: 10
         maxWaitDuration: 10ms
       loyaltyService:
         maxConcurrentCalls: 10
+        maxWaitDuration: 10ms
+      notificationService:
+        maxConcurrentCalls: 20
         maxWaitDuration: 10ms
