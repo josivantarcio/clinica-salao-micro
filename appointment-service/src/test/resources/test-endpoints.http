@@ -1,0 +1,109 @@
+### Variáveis
+@baseUrl = http://localhost:8084/api/appointments
+@contentType = application/json
+
+### 1. Criar um novo agendamento
+# Esse endpoint cria um novo agendamento
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "clientId": 1,
+  "professionalId": 2,
+  "serviceId": 1,
+  "quantity": 1,
+  "date": "2025-06-10T14:00:00",
+  "duration": 60,
+  "notes": "Primeira consulta com este profissional"
+}
+
+### 2. Listar todos os agendamentos
+# Este endpoint lista todos os agendamentos com paginação
+GET {{baseUrl}}?page=0&size=10&sort=date,desc
+
+### 3. Buscar agendamento por ID
+# Substitua {id} pelo ID do agendamento criado
+GET {{baseUrl}}/1
+
+### 4. Buscar agendamentos por cliente
+# Lista os agendamentos de um cliente específico
+GET {{baseUrl}}/client/1?page=0&size=10
+
+### 5. Buscar agendamentos por profissional
+# Lista os agendamentos de um profissional específico
+GET {{baseUrl}}/professional/2?page=0&size=10
+
+### 6. Buscar agendamentos por status
+# Lista os agendamentos com um status específico (SCHEDULED, COMPLETED, CANCELLED, NO_SHOW)
+GET {{baseUrl}}/status/SCHEDULED?page=0&size=10
+
+### 7. Buscar agendamentos do profissional para um dia específico
+# Lista os agendamentos de um profissional em uma data específica
+GET {{baseUrl}}/professional/2/day?day=2025-06-10T00:00:00
+
+### 8. Atualizar agendamento
+# Atualiza os dados de um agendamento existente
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "clientId": 1,
+  "professionalId": 2,
+  "serviceId": 1,
+  "quantity": 1,
+  "date": "2025-06-10T15:00:00",
+  "duration": 90,
+  "notes": "Horário atualizado e duração estendida"
+}
+
+### 9. Atualizar status do agendamento
+# Atualiza apenas o status de um agendamento
+PATCH {{baseUrl}}/1/status?status=COMPLETED
+
+### 10. Marcar agendamento como concluído
+# Marca um agendamento como concluído
+PATCH {{baseUrl}}/1/complete
+
+### 11. Cancelar agendamento
+# Marca um agendamento como cancelado
+PATCH {{baseUrl}}/1/cancel
+
+### 12. Marcar não comparecimento
+# Marca um agendamento como não comparecido
+PATCH {{baseUrl}}/1/no-show
+
+### 13. Buscar agendamentos pendentes de pagamento
+# Lista os agendamentos completados e pendentes de pagamento
+GET {{baseUrl}}/pending-payment?page=0&size=10
+
+### 14. Buscar agendamentos pendentes de pagamento por cliente
+# Lista os agendamentos pendentes de pagamento de um cliente específico
+GET {{baseUrl}}/pending-payment?clientId=1&page=0&size=10
+
+### ===== TESTES DE INTEGRAÇÃO COM FINANCE-SERVICE =====
+
+### 15. Criar link de pagamento para um agendamento
+# Este endpoint cria um link de pagamento para um agendamento concluído
+# Primeiro, crie e complete um agendamento usando os endpoints anteriores
+POST {{baseUrl}}/1/payment-link
+Content-Type: {{contentType}}
+
+{
+  "description": "Pagamento de consulta",
+  "clientEmail": "cliente@example.com",
+  "dueDate": "2025-06-15"
+}
+
+### 16. Verificar status de pagamento de um agendamento
+# Verifica se um agendamento foi pago
+GET {{baseUrl}}/1/payment-status
+
+### 17. Solicitar reembolso para um agendamento
+# Este endpoint solicita reembolso para um agendamento cancelado que já foi pago
+# Primeiro certifique-se que o agendamento está marcado como cancelado e já foi pago
+POST {{baseUrl}}/1/refund
+Content-Type: {{contentType}}
+
+{
+  "reason": "Cliente cancelou com antecedência"
+}

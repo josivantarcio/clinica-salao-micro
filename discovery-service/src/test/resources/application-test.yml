@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: discovery-service-test
+  freemarker:
+    template-loader-path: classpath:/templates/
+
+server:
+  port: 0  # Use porta aleatória para testes
+
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    service-url:
+      defaultZone: http://localhost:${server.port}/eureka/
+  server:
+    waitTimeInMsWhenSyncEmpty: 0
+    enableSelfPreservation: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Configuração de logs para testes
+logging:
+  level:
+    com.netflix.eureka: ERROR
+    com.netflix.discovery: ERROR

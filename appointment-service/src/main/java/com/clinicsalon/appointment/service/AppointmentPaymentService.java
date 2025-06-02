@@ -53,13 +53,16 @@ public class AppointmentPaymentService {
         // Chamar o serviço financeiro para criar o link de pagamento
         ResponseEntity<Map<String, String>> response = financeServiceClient.createPaymentLink(paymentRequest);
         
-        if (response.getBody() != null && "SUCCESS".equals(response.getBody().get("status"))) {
-            log.info("Link de pagamento gerado com sucesso para o agendamento ID: {}", appointmentId);
-            return response.getBody();
-        } else {
-            log.error("Erro ao gerar link de pagamento para o agendamento ID: {}", appointmentId);
-            throw new BusinessException("Não foi possível gerar o link de pagamento");
+        if (response != null && response.hasBody()) {
+            Map<String, String> body = response.getBody();
+            if (body != null && "SUCCESS".equals(body.get("status"))) {
+                log.info("Link de pagamento gerado com sucesso para o agendamento ID: {}", appointmentId);
+                return body;
+            }
         }
+        
+        log.error("Erro ao gerar link de pagamento para o agendamento ID: {}", appointmentId);
+        throw new BusinessException("Não foi possível gerar o link de pagamento");
     }
     
     /**
@@ -76,17 +79,21 @@ public class AppointmentPaymentService {
         ResponseEntity<Map<String, Object>> response = 
             financeServiceClient.getPaymentStatusByAppointmentId(appointmentId);
         
-        if (response.getBody() != null) {
-            log.info("Status de pagamento obtido para o agendamento ID: {}: {}", 
-                    appointmentId, response.getBody().get("status"));
-            return response.getBody();
-        } else {
-            log.error("Erro ao obter status de pagamento para o agendamento ID: {}", appointmentId);
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("status", "ERROR");
-            errorResponse.put("message", "Não foi possível obter o status do pagamento");
-            return errorResponse;
+        if (response != null && response.hasBody()) {
+            Map<String, Object> body = response.getBody();
+            if (body != null) {
+                Object status = body.get("status");
+                log.info("Status de pagamento obtido para o agendamento ID: {}: {}", 
+                        appointmentId, status);
+                return body;
+            }
         }
+        
+        log.error("Erro ao obter status de pagamento para o agendamento ID: {}", appointmentId);
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", "ERROR");
+        errorResponse.put("message", "Não foi possível obter o status do pagamento");
+        return errorResponse;
     }
     
     /**
@@ -108,13 +115,16 @@ public class AppointmentPaymentService {
         
         ResponseEntity<Map<String, Object>> response = financeServiceClient.processRefund(appointmentId);
         
-        if (response.getBody() != null && "SUCCESS".equals(response.getBody().get("status"))) {
-            log.info("Reembolso processado com sucesso para o agendamento ID: {}", appointmentId);
-            return response.getBody();
-        } else {
-            log.error("Erro ao processar reembolso para o agendamento ID: {}", appointmentId);
-            throw new BusinessException("Não foi possível processar o reembolso");
+        if (response != null && response.hasBody()) {
+            Map<String, Object> body = response.getBody();
+            if (body != null && "SUCCESS".equals(body.get("status"))) {
+                log.info("Reembolso processado com sucesso para o agendamento ID: {}", appointmentId);
+                return body;
+            }
         }
+        
+        log.error("Erro ao processar reembolso para o agendamento ID: {}", appointmentId);
+        throw new BusinessException("Não foi possível processar o reembolso");
     }
     
     // Métodos de fallback para o Circuit Breaker

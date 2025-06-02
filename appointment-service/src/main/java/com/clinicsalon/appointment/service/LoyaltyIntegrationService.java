@@ -52,17 +52,20 @@ public class LoyaltyIntegrationService {
         
         ResponseEntity<Map<String, Object>> response = loyaltyServiceClient.addPoints(pointsRequest);
         
-        if (response.getBody() != null && "SUCCESS".equals(response.getBody().get("status"))) {
-            log.info("Pontos de fidelidade adicionados com sucesso: {} pontos para cliente ID: {}", 
-                    points, appointment.getClientId());
-            return response.getBody();
-        } else {
-            log.error("Erro ao adicionar pontos de fidelidade para cliente ID: {}", appointment.getClientId());
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("status", "ERROR");
-            errorResponse.put("message", "Não foi possível adicionar os pontos de fidelidade");
-            return errorResponse;
+        if (response != null && response.hasBody()) {
+            Map<String, Object> body = response.getBody();
+            if (body != null && "SUCCESS".equals(body.get("status"))) {
+                log.info("Pontos de fidelidade adicionados com sucesso: {} pontos para cliente ID: {}", 
+                        points, appointment.getClientId());
+                return body;
+            }
         }
+        
+        log.error("Erro ao adicionar pontos de fidelidade para cliente ID: {}", appointment.getClientId());
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", "ERROR");
+        errorResponse.put("message", "Não foi possível adicionar os pontos de fidelidade");
+        return errorResponse;
     }
     
     /**
@@ -78,18 +81,22 @@ public class LoyaltyIntegrationService {
         
         ResponseEntity<Map<String, Object>> response = loyaltyServiceClient.getPointsBalance(clientId);
         
-        if (response.getBody() != null) {
-            log.info("Saldo de pontos recuperado com sucesso para cliente ID: {}: {} pontos", 
-                    clientId, response.getBody().get("points"));
-            return response.getBody();
-        } else {
-            log.error("Erro ao verificar saldo de pontos para cliente ID: {}", clientId);
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("status", "ERROR");
-            errorResponse.put("message", "Não foi possível verificar o saldo de pontos");
-            errorResponse.put("points", 0);
-            return errorResponse;
+        if (response != null && response.hasBody()) {
+            Map<String, Object> body = response.getBody();
+            if (body != null) {
+                Object points = body.get("points");
+                log.info("Saldo de pontos recuperado com sucesso para cliente ID: {}: {} pontos", 
+                        clientId, points != null ? points : 0);
+                return body;
+            }
         }
+        
+        log.error("Erro ao verificar saldo de pontos para cliente ID: {}", clientId);
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", "ERROR");
+        errorResponse.put("message", "Não foi possível verificar o saldo de pontos");
+        errorResponse.put("points", 0);
+        return errorResponse;
     }
     
     /**

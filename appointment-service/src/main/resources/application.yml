@@ -7,14 +7,23 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+  profiles:
+    active: dev
+
+---
+# Perfil de desenvolvimento (default)
+spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     url: jdbc:h2:mem:appointment_db;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa
     password: password
-    driver-class-name: org.h2.Driver
+    driverClassName: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -26,7 +35,31 @@ spring:
       path: /h2-console
   flyway:
     enabled: false
-    
+
+---
+# Perfil de produção
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5433/appointment_db
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
 eureka:
   client:
     serviceUrl:

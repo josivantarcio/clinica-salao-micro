@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: api-gateway-test
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: auth-service-route
+          uri: http://localhost:${wiremock.server.port:8090}
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /auth/$\{segment}
+        
+        - id: client-service-route
+          uri: http://localhost:${wiremock.server.port:8090}
+          predicates:
+            - Path=/api/clients/**
+          filters:
+            - RewritePath=/api/clients/(?<segment>.*), /api/clients/$\{segment}
+            
+        - id: actuator-route
+          uri: lb://api-gateway
+          predicates:
+            - Path=/actuator/**
+
+eureka:
+  client:
+    enabled: false
+    registerWithEureka: false
+    fetchRegistry: false
+
+server:
+  port: 0
+
+# Configuração de segurança e token JWT para testes
+spring.security:
+  jwt:
+    secret: testSecretKey123456789012345678901234567890
+    expiration: 3600000  # 1 hora
+
+# Habilitar logs de debug para testes
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: INFO
+    org.springframework.web: DEBUG
+    com.clinicsalon.gateway: DEBUG
