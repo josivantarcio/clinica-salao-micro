@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -97,6 +98,7 @@ public class AppointmentService {
      * @return Página de agendamentos pendentes de pagamento
      */
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Buscar agendamentos pendentes de pagamento", thresholdMillis = 800)
     public Page<AppointmentResponse> findPendingPayment(Pageable pageable) {
         log.info("Buscando agendamentos pendentes de pagamento");
         // Buscar agendamentos com status COMPLETED
@@ -129,6 +131,7 @@ public class AppointmentService {
      * @return Página de agendamentos pendentes de pagamento do cliente
      */
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Buscar agendamentos pendentes de pagamento por cliente", thresholdMillis = 800)
     public Page<AppointmentResponse> findPendingPaymentByClientId(Long clientId, Pageable pageable) {
         log.info("Buscando agendamentos pendentes de pagamento para o cliente ID: {}", clientId);
         // Buscar agendamentos do cliente com status COMPLETED
@@ -156,6 +159,7 @@ public class AppointmentService {
     }
 
     @Transactional
+    @MonitorPerformance(description = "Criar agendamento", thresholdMillis = 1000, logParameters = true)
     public AppointmentResponse create(AppointmentRequest request) {
         validateAppointmentRequest(request);
         
@@ -202,6 +206,7 @@ public class AppointmentService {
     }
 
     @Transactional
+    @MonitorPerformance(description = "Atualizar agendamento", thresholdMillis = 1000, logParameters = true)
     public AppointmentResponse update(Long id, AppointmentRequest request) {
         Appointment appointment = getAppointmentById(id);
         
@@ -247,6 +252,7 @@ public class AppointmentService {
     }
 
     @Transactional
+    @MonitorPerformance(description = "Atualizar status do agendamento", thresholdMillis = 500, logParameters = true, alertOnError = true)
     public AppointmentResponse updateStatus(Long id, AppointmentStatus status) {
         Appointment appointment = getAppointmentById(id);
         AppointmentStatus oldStatus = appointment.getStatus();

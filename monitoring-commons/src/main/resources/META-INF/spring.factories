@@ -1,0 +1,4 @@
+# Este arquivo está vazio propositalmente.
+# As configurações foram migradas para META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+# conforme as recomendações do Spring Boot 3.x
+# Mantido apenas para retrocompatibilidade

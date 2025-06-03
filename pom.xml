@@ -31,6 +31,7 @@
         <module>loyalty-service-client</module>
         <module>report-service</module>
         <module>report-service-client</module>
+        <module>monitoring-commons</module>
     </modules>
 
     <properties>

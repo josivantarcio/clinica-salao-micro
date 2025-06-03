@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: discovery-service
+  profiles:
+    active: default,monitoring
 
 eureka:
   client:
@@ -29,6 +31,6 @@ management:
 logging:
   level:
     root: INFO
-    com.netflix.eureka: INFO
-    com.netflix.discovery: INFO
-    com.clinicsalon.discovery: DEBUG
+    '[com.netflix.eureka]': INFO
+    '[com.netflix.discovery]': INFO
+    '[com.clinicsalon.discovery]': DEBUG

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,6 +33,7 @@ public class ReportService {
     /**
      * Gera um relatório baseado nos parâmetros fornecidos
      */
+    @MonitorPerformance(description = "Gerar relatório", thresholdMillis = 2000, alertOnError = true)
     public ReportResponse generateReport(ReportRequest request) {
         log.info("Generating report: {}", request.getReportType());
         
@@ -98,6 +101,7 @@ public class ReportService {
         };
     }
     
+    @MonitorPerformance(description = "Gerar relatório de agendamentos do cliente", thresholdMillis = 1500, alertOnError = true)
     private byte[] generateClientAppointmentsReport(ReportRequest request) {
         log.info("Generating client appointments report for client ID: {}", request.getClientId());
         
@@ -135,6 +139,7 @@ public class ReportService {
                 appointments);
     }
     
+    @MonitorPerformance(description = "Gerar relatório de agenda do profissional", thresholdMillis = 1500, alertOnError = true)
     private byte[] generateProfessionalScheduleReport(ReportRequest request) {
         log.info("Generating professional schedule report for professional ID: {}", request.getProfessionalId());
         
@@ -171,6 +176,7 @@ public class ReportService {
                 appointments);
     }
     
+    @MonitorPerformance(description = "Gerar relatório de resumo de receitas", thresholdMillis = 1500, alertOnError = true)
     private byte[] generateRevenueSummaryReport(ReportRequest request) {
         log.info("Generating revenue summary report from {} to {}", request.getStartDate(), request.getEndDate());
         

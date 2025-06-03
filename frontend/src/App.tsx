@@ -23,6 +23,19 @@ const TransactionDetails = React.lazy(() => import('./pages/finance/TransactionD
 const TransactionForm = React.lazy(() => import('./pages/finance/TransactionForm'));
 const Revenue = React.lazy(() => import('./pages/finance/Revenue'));
 
+// Professional Pages
+const Professionals = React.lazy(() => import('./pages/professionals/Professionals'));
+const ProfessionalForm = React.lazy(() => import('./pages/professionals/ProfessionalForm'));
+
+// Appointments Pages
+const Appointments = React.lazy(() => import('./pages/appointments/Appointments'));
+
+// Loyalty Pages
+const LoyaltyPrograms = React.lazy(() => import('./pages/loyalty/LoyaltyPrograms'));
+
+// Reports Pages
+const Reports = React.lazy(() => import('./pages/reports/Reports'));
+
 // Protected Route Component para compatibilidade com código existente
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -70,6 +83,28 @@ function App() {
                     <Route path="finance/transactions/:id" element={<TransactionDetails />} />
                     <Route path="finance/transactions/:id/edit" element={<TransactionForm />} />
                     <Route path="finance/revenue" element={<Revenue />} />
+                  </Route>
+
+                  {/* Rotas de Profissionais - Acesso para administradores e gerentes */}
+                  <Route element={<RoleBasedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_MANAGER']} />}>
+                    <Route path="professionals" element={<Professionals />} />
+                    <Route path="professionals/new" element={<ProfessionalForm />} />
+                    <Route path="professionals/:id/edit" element={<ProfessionalForm />} />
+                  </Route>
+
+                  {/* Rotas de Agendamentos - Acesso para atendentes, profissionais e administradores */}
+                  <Route element={<RoleBasedRoute requiredRoles={['ROLE_ATTENDANT', 'ROLE_PROFESSIONAL', 'ROLE_ADMIN']} />}>
+                    <Route path="appointments" element={<Appointments />} />
+                  </Route>
+
+                  {/* Rotas de Fidelidade - Acesso para administradores e gerentes */}
+                  <Route element={<RoleBasedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_MANAGER']} />}>
+                    <Route path="loyalty/programs" element={<LoyaltyPrograms />} />
+                  </Route>
+
+                  {/* Rotas de Relatórios - Acesso para administradores e gerentes */}
+                  <Route element={<RoleBasedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FINANCE']} />}>
+                    <Route path="reports" element={<Reports />} />
                   </Route>
                 </Route>
                 

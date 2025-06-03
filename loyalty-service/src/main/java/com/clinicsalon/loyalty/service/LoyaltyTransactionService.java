@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,6 +31,7 @@ public class LoyaltyTransactionService {
     private final ClientLookupService clientLookupService;
 
     @Transactional
+    @MonitorPerformance(description = "Criar transação de fidelidade", thresholdMillis = 500, alertOnError = true)
     public LoyaltyTransactionResponse createTransaction(LoyaltyTransactionRequest request) {
         log.info("Creating loyalty transaction for client ID: {} of type: {}", 
                  request.getClientId(), request.getType());
@@ -74,6 +77,7 @@ public class LoyaltyTransactionService {
     }
     
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Buscar transações por ID de cliente paginado", thresholdMillis = 300)
     public Page<LoyaltyTransactionResponse> getTransactionsByClientId(Long clientId, Pageable pageable) {
         log.info("Fetching transactions for client ID: {}", clientId);
         
@@ -86,6 +90,7 @@ public class LoyaltyTransactionService {
     }
     
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Buscar transações por ID de cliente e intervalo de datas", thresholdMillis = 500)
     public List<LoyaltyTransactionResponse> getTransactionsByClientIdAndDateRange(
             Long clientId, LocalDateTime startDate, LocalDateTime endDate) {
         log.info("Fetching transactions for client ID: {} between {} and {}", 
@@ -103,6 +108,7 @@ public class LoyaltyTransactionService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Processar pontos expirados", thresholdMillis = 1000, alertOnError = true)
     public void processExpiredPoints() {
         log.info("Processing expired points");
         

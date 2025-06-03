@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +27,7 @@ public class ProfessionalService {
     private final ProfessionalMapper professionalMapper;
 
     @Transactional
+    @MonitorPerformance(description = "Criar profissional", thresholdMillis = 500, alertOnError = true)
     public ProfessionalResponse createProfessional(ProfessionalRequest request) {
         log.info("Creating professional with name: {}", request.getName());
         
@@ -47,6 +50,7 @@ public class ProfessionalService {
         return professionalMapper.toResponse(savedProfessional);
     }
     
+    @MonitorPerformance(description = "Buscar profissional por ID", thresholdMillis = 200)
     public ProfessionalResponse getProfessionalById(Long id) {
         log.info("Fetching professional with ID: {}", id);
         
@@ -54,6 +58,7 @@ public class ProfessionalService {
         return professionalMapper.toResponse(professional);
     }
     
+    @MonitorPerformance(description = "Listar todos os profissionais", thresholdMillis = 300)
     public List<ProfessionalResponse> getAllProfessionals() {
         log.info("Fetching all professionals");
         
@@ -62,6 +67,7 @@ public class ProfessionalService {
                 .collect(Collectors.toList());
     }
     
+    @MonitorPerformance(description = "Listar profissionais ativos", thresholdMillis = 300)
     public List<ProfessionalResponse> getActiveProfessionals() {
         log.info("Fetching active professionals");
         
@@ -70,6 +76,7 @@ public class ProfessionalService {
                 .collect(Collectors.toList());
     }
     
+    @MonitorPerformance(description = "Buscar profissionais por especialização", thresholdMillis = 300)
     public List<ProfessionalResponse> getProfessionalsBySpecialization(String specialization) {
         log.info("Fetching professionals with specialization: {}", specialization);
         
@@ -79,6 +86,7 @@ public class ProfessionalService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Atualizar profissional", thresholdMillis = 500, alertOnError = true)
     public ProfessionalResponse updateProfessional(Long id, ProfessionalRequest request) {
         log.info("Updating professional with ID: {}", id);
         
@@ -106,6 +114,7 @@ public class ProfessionalService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Desativar profissional", thresholdMillis = 300, alertOnError = true)
     public ProfessionalResponse deactivateProfessional(Long id) {
         log.info("Deactivating professional with ID: {}", id);
         
@@ -120,6 +129,7 @@ public class ProfessionalService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Ativar profissional", thresholdMillis = 300, alertOnError = true)
     public ProfessionalResponse activateProfessional(Long id) {
         log.info("Activating professional with ID: {}", id);
         
@@ -134,6 +144,7 @@ public class ProfessionalService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Excluir profissional", thresholdMillis = 500, alertOnError = true)
     public void deleteProfessional(Long id) {
         log.info("Deleting professional with ID: {}", id);
         

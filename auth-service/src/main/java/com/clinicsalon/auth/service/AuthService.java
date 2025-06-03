@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
+    @MonitorPerformance(description = "Registro de novo usuário", thresholdMillis = 1000, logParameters = true, alertOnError = true)
     public AuthResponse register(RegisterRequest request) {
         log.info("Registering new user: {}", request.getUsername());
         
@@ -67,6 +69,7 @@ public class AuthService {
         return buildAuthResponse(savedUser, jwtToken, null);
     }
 
+    @MonitorPerformance(description = "Autenticação de usuário", thresholdMillis = 500, logParameters = true, alertOnError = true)
     public AuthResponse authenticate(AuthRequest request) {
         log.info("Authenticating user: {}", request.getUsername());
         

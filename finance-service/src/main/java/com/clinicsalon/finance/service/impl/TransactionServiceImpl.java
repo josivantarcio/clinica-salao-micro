@@ -11,6 +11,7 @@ import com.clinicsalon.finance.repository.TransactionRepository;
 import com.clinicsalon.finance.service.IntegrationService;
 import com.clinicsalon.finance.service.TransactionService;
 import com.clinicsalon.finance.util.DtoConverter;
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
     
     @Override
     @Transactional
+    @MonitorPerformance(description = "Create financial transaction", thresholdMillis = 500, logParameters = true)
     public TransactionResponse createTransaction(TransactionRequest request) {
         log.info("Creating new transaction for appointment: {}", request.getAppointmentId());
         
@@ -140,6 +142,7 @@ public class TransactionServiceImpl implements TransactionService {
     
     @Override
     @Transactional
+    @MonitorPerformance(description = "Update transaction status", thresholdMillis = 300)
     public TransactionResponse updateTransactionStatus(UUID id, TransactionStatus status) {
         log.info("Updating transaction {} status to {}", id, status);
         
@@ -170,7 +173,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
     
     @Override
-    @Transactional
+    @MonitorPerformance(description = "Generate payment link", thresholdMillis = 800, logParameters = true)
     public String generatePaymentLink(UUID transactionId) {
         log.info("Generating payment link for transaction: {}", transactionId);
         
@@ -205,6 +208,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
     
     @Override
+    @MonitorPerformance(description = "Calculate revenue between dates", thresholdMillis = 1000)
     public Double calculateRevenueBetweenDates(LocalDate startDate, LocalDate endDate) {
         log.info("Calculating revenue between {} and {}", startDate, endDate);
         LocalDateTime startDateTime = startDate.atStartOfDay();
@@ -216,6 +220,7 @@ public class TransactionServiceImpl implements TransactionService {
     
     @Override
     @Transactional
+    @MonitorPerformance(description = "Process payment via gateway", thresholdMillis = 1000, logParameters = true, alertOnError = true)
     public TransactionResponse processPayment(UUID transactionId) {
         log.info("Processing payment for transaction: {}", transactionId);
         
@@ -270,6 +275,7 @@ public class TransactionServiceImpl implements TransactionService {
     
     @Override
     @Transactional
+    @MonitorPerformance(description = "Process payment refund", thresholdMillis = 1000, logParameters = true, alertOnError = true)
     public TransactionResponse processRefund(UUID transactionId) {
         log.info("Processing refund for transaction: {}", transactionId);
         

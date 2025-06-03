@@ -7,6 +7,7 @@ import com.clinicsalon.client.exception.ResourceNotFoundException;
 import com.clinicsalon.client.mapper.ClientMapper;
 import com.clinicsalon.client.model.Client;
 import com.clinicsalon.client.repository.ClientRepository;
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ public class ClientService {
     private final ClientMapper clientMapper;
     
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Listar todos os clientes", thresholdMillis = 500)
     public Page<ClientResponse> findAll(Pageable pageable) {
         log.info("Fetching all clients with pagination: {}", pageable);
         return clientRepository.findAll(pageable)
@@ -30,6 +32,7 @@ public class ClientService {
     }
     
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Buscar cliente por ID", thresholdMillis = 200)
     public ClientResponse findById(Long id) {
         log.info("Fetching client with id: {}", id);
         return clientRepository.findById(id)
@@ -38,6 +41,7 @@ public class ClientService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Criar cliente", thresholdMillis = 500, logParameters = true, alertOnError = true)
     public ClientResponse create(ClientRequest request) {
         log.info("Creating new client with email: {}", request.getEmail());
         
@@ -61,6 +65,7 @@ public class ClientService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Atualizar cliente", thresholdMillis = 500, logParameters = true, alertOnError = true)
     public ClientResponse update(Long id, ClientRequest request) {
         log.info("Updating client with id: {}", id);
         
@@ -93,6 +98,7 @@ public class ClientService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Excluir cliente", thresholdMillis = 300, logParameters = true, alertOnError = true)
     public void delete(Long id) {
         log.info("Deleting client with id: {}", id);
         
@@ -105,6 +111,7 @@ public class ClientService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Desativar cliente", thresholdMillis = 300, logParameters = true)
     public ClientResponse deactivate(Long id) {
         log.info("Deactivating client with id: {}", id);
         
@@ -123,6 +130,7 @@ public class ClientService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Ativar cliente", thresholdMillis = 300, logParameters = true)
     public ClientResponse activate(Long id) {
         log.info("Activating client with id: {}", id);
         

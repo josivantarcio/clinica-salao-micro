@@ -20,6 +20,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      
+  # Frontend React
+  frontend:
+    build: ./frontend
+    container_name: clinicsalon-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - clinicsalon-network
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - frontend-data:/usr/share/nginx/html
 
   # Servidor de Descoberta (Eureka)
   discovery-service:
@@ -175,3 +190,4 @@ networks:
 
 volumes:
   postgres-data:
+  frontend-data:

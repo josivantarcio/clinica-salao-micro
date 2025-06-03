@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: discovery-service
+  cache:
+    type: caffeine
+    cache-names: eureka-clients
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=10m
+
+# Configurações de monitoramento
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      sla:
+        http.server.requests: 50ms,100ms,200ms,500ms,1s
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active:default}
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Configuração de logs
+logging:
+  level:
+    com.netflix.eureka: INFO
+    com.clinicsalon.monitoring: INFO
+    org.springframework.cache: INFO
+    io.micrometer: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

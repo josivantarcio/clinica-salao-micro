@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +26,7 @@ public class LoyaltyAccountService {
     private final ClientLookupService clientLookupService;
 
     @Transactional
+    @MonitorPerformance(description = "Criar conta de fidelidade", thresholdMillis = 500, alertOnError = true)
     public LoyaltyAccountResponse createLoyaltyAccount(LoyaltyAccountRequest request) {
         log.info("Creating loyalty account for client ID: {}", request.getClientId());
         
@@ -52,6 +55,7 @@ public class LoyaltyAccountService {
     }
     
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Buscar conta de fidelidade por ID do cliente", thresholdMillis = 300)
     public LoyaltyAccountResponse getLoyaltyAccountByClientId(Long clientId) {
         log.info("Fetching loyalty account for client ID: {}", clientId);
         
@@ -64,6 +68,7 @@ public class LoyaltyAccountService {
     }
     
     @Transactional(readOnly = true)
+    @MonitorPerformance(description = "Listar todas as contas de fidelidade", thresholdMillis = 500)
     public List<LoyaltyAccountResponse> getAllLoyaltyAccounts() {
         log.info("Fetching all loyalty accounts");
         
@@ -78,6 +83,7 @@ public class LoyaltyAccountService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Atualizar nível de fidelidade", thresholdMillis = 300, alertOnError = true)
     public LoyaltyAccountResponse updateTier(Long clientId, LoyaltyTier newTier) {
         log.info("Updating tier for client ID: {} to {}", clientId, newTier);
         
@@ -94,6 +100,7 @@ public class LoyaltyAccountService {
     }
     
     @Transactional
+    @MonitorPerformance(description = "Atualizar saldo de pontos", thresholdMillis = 400, alertOnError = true)
     public LoyaltyAccountResponse updatePointsBalance(Long clientId, Integer pointsDelta) {
         log.info("Updating points balance for client ID: {} by {}", clientId, pointsDelta);
         

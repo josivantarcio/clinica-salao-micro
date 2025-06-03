@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.util.Map;
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
 
 /**
  * Serviço para buscar informações de clientes no microsserviço client-service
@@ -23,6 +25,7 @@ public class ClientLookupService {
      * Utiliza circuit breaker para lidar com falhas no serviço de clientes
      */
     @CircuitBreaker(name = "clientService", fallbackMethod = "getClientNameFallback")
+    @MonitorPerformance(description = "Buscar nome do cliente", thresholdMillis = 300, alertOnError = true)
     public String getClientName(Long clientId) {
         log.info("Looking up client name for ID: {}", clientId);
         

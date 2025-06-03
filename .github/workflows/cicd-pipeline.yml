@@ -1,0 +1,196 @@
+name: ClinicaSalao Microservices CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+        
+      - name: Run unit tests
+        run: mvn test
+        
+      - name: Run monitoring integration tests
+        run: mvn test -P monitoring -Dgroups=integration
+        
+      - name: Upload test results
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: '**/target/surefire-reports/*.xml'
+          
+  sonarqube-analysis:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          
+      - name: Cache SonarQube packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+          
+      - name: Analyze with SonarQube
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=clinica-salao-microservices
+
+  docker-build:
+    needs: [build-and-test, sonarqube-analysis]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Extract branch name
+        shell: bash
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          
+      - name: Build and push Auth Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./auth-service
+          push: true
+          tags: clinicasalao/auth-service:${{ env.BRANCH_NAME == 'main' && 'latest' || env.BRANCH_NAME }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=monitoring
+          
+      - name: Build and push Professional Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./professional-service
+          push: true
+          tags: clinicasalao/professional-service:${{ env.BRANCH_NAME == 'main' && 'latest' || env.BRANCH_NAME }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=monitoring
+          
+      - name: Build and push Loyalty Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./loyalty-service
+          push: true
+          tags: clinicasalao/loyalty-service:${{ env.BRANCH_NAME == 'main' && 'latest' || env.BRANCH_NAME }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=monitoring
+          
+      - name: Build and push Report Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./report-service
+          push: true
+          tags: clinicasalao/report-service:${{ env.BRANCH_NAME == 'main' && 'latest' || env.BRANCH_NAME }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=monitoring
+          
+      - name: Build and push API Gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: ./api-gateway
+          push: true
+          tags: clinicasalao/api-gateway:${{ env.BRANCH_NAME == 'main' && 'latest' || env.BRANCH_NAME }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=monitoring
+          
+      - name: Build and push Discovery Service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./discovery-service
+          push: true
+          tags: clinicasalao/discovery-service:${{ env.BRANCH_NAME == 'main' && 'latest' || env.BRANCH_NAME }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=monitoring
+
+  deploy-to-staging:
+    needs: docker-build
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to Kubernetes staging environment with monitoring
+        run: |
+          echo "Deploying to staging environment with monitoring profile"
+          # Replace with actual kubectl commands to deploy to cluster
+          # kubectl apply -f k8s/staging/ --set spring.profiles.active=monitoring
+          
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment health"
+          # Replace with actual verification commands
+          # kubectl wait --for=condition=available --timeout=300s deployment/auth-service -n staging
+          
+      - name: Verify monitoring endpoints
+        run: |
+          echo "Verifying monitoring endpoints are active"
+          # Replace with actual check of actuator/prometheus endpoints
+        
+  deploy-to-production:
+    needs: docker-build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://api.clinicasalao.com
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to Kubernetes production environment with monitoring
+        run: |
+          echo "Deploying to production environment with monitoring profile"
+          # Replace with actual kubectl commands to deploy to production cluster
+          # kubectl apply -f k8s/production/ --set spring.profiles.active=monitoring
+          
+      - name: Verify deployment
+        run: |
+          echo "Verifying production deployment health"
+          # Replace with actual verification commands
+          # kubectl wait --for=condition=available --timeout=300s deployment/auth-service -n production
+          
+      - name: Verify monitoring in production
+        run: |
+          echo "Verifying monitoring system in production"
+          # Replace with actual check of monitoring stack

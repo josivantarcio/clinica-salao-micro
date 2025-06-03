@@ -8,7 +8,7 @@ spring:
     compatibility-verifier:
       enabled: false
   profiles:
-    active: dev
+    active: dev,monitoring
 
 ---
 # Perfil de desenvolvimento (default)

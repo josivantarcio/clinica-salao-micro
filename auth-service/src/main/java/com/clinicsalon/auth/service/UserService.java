@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.clinicsalon.monitoring.aspect.MonitorPerformance;
 
 @Service
 @RequiredArgsConstructor
@@ -23,12 +24,14 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
+    @MonitorPerformance(description = "Carregar usuário por username", thresholdMillis = 300, alertOnError = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.debug("Loading user by username: {}", username);
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
+    @MonitorPerformance(description = "Listar todos os usuários", thresholdMillis = 500)
     public List<UserDTO> getAllUsers() {
         log.debug("Getting all users");
         return userRepository.findAll().stream()
@@ -36,6 +39,7 @@ public class UserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
+    @MonitorPerformance(description = "Buscar usuário por ID", thresholdMillis = 200)
     public UserDTO getUserById(UUID id) {
         log.debug("Getting user by id: {}", id);
         User user = userRepository.findById(id)
@@ -43,6 +47,7 @@ public class UserService implements UserDetailsService {
         return mapToDTO(user);
     }
 
+    @MonitorPerformance(description = "Buscar usuário por username", thresholdMillis = 200)
     public UserDTO getUserByUsername(String username) {
         log.debug("Getting user by username: {}", username);
         User user = userRepository.findByUsername(username)

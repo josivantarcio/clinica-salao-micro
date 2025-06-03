@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: finance-service
+  profiles:
+    active: default,monitoring
   datasource:
     url: jdbc:postgresql://localhost:5432/finance_service_db
     username: postgres

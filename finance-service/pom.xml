@@ -57,6 +57,13 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- Monitoring Commons -->
+        <dependency>
+            <groupId>com.clinicsalon</groupId>
+            <artifactId>monitoring-commons</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Database -->
         <dependency>
             <groupId>org.postgresql</groupId>   

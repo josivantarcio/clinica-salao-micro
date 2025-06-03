@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: client-service
+  cache:
+    type: caffeine
+    cache-names: clients,clientAddresses,clientPreferences
+    caffeine:
+      spec: maximumSize=2000,expireAfterWrite=60m
+
+# Configurações de monitoramento
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        '[http.server.requests]': true
+      percentiles:
+        '[http.server.requests]': 0.5, 0.9, 0.95, 0.99
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active:default}
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Configuração de logs
+logging:
+  level:
+    '[com.clinicsalon.client]': INFO
+    '[com.clinicsalon.monitoring]': INFO
+    '[org.springframework.cache]': INFO
+    '[io.micrometer]': INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

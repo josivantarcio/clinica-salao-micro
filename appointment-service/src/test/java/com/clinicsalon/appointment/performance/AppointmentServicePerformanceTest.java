@@ -91,8 +91,10 @@ public class AppointmentServicePerformanceTest {
         
         Map<String, String> paymentResponse = new HashMap<>();
         paymentResponse.put("paymentLink", PAYMENT_LINK);
-        when(financeServiceClient.createPaymentLink(anyLong(), anyDouble(), any(), any(), any()))
-                .thenReturn(paymentResponse);
+        paymentResponse.put("status", "SUCCESS");
+        ResponseEntity<Map<String, String>> responseEntity = ResponseEntity.ok(paymentResponse);
+        when(financeServiceClient.createPaymentLink(any(Map.class)))
+                .thenReturn(responseEntity);
 
         // Registrar o início do teste
         Instant startTime = Instant.now();
@@ -192,10 +194,11 @@ public class AppointmentServicePerformanceTest {
 
         when(appointmentRepository.findById(anyLong())).thenReturn(Optional.of(testAppointment));
         
-        Map<String, String> statusResponse = new HashMap<>();
+        Map<String, Object> statusResponse = new HashMap<>();
         statusResponse.put("status", "PAID");
+        ResponseEntity<Map<String, Object>> statusResponseEntity = ResponseEntity.ok(statusResponse);
         when(financeServiceClient.getPaymentStatusByAppointmentId(anyLong()))
-                .thenReturn(statusResponse);
+                .thenReturn(statusResponseEntity);
 
         // Contador para sincronizar os threads
         CountDownLatch latch = new CountDownLatch(CONCURRENT_REQUESTS);

@@ -1,0 +1,62 @@
+groups:
+  - name: clinica-salao-alerts
+    rules:
+      # Alerta para métodos que excedem seus limites de tempo definidos
+      - alert: MetodoExcedendoTimeout
+        expr: method_execution_time_seconds_max > method_threshold_seconds
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Método excedendo limite de tempo"
+          description: "O método {{ $labels.method }} está com tempo de execução ({{ $value }}s) acima do limite definido ({{ $labels.threshold }}s) por 5 minutos."
+
+      # Alerta para serviços com alta taxa de erros
+      - alert: TaxaDeErrosElevada
+        expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (application, instance) / sum(rate(http_server_requests_seconds_count[5m])) by (application, instance) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taxa de erros elevada"
+          description: "A aplicação {{ $labels.application }} ({{ $labels.instance }}) está com taxa de erros acima de 5% nos últimos 2 minutos."
+
+      # Alerta para circuit breakers abertos
+      - alert: CircuitBreakerAberto
+        expr: resilience4j_circuitbreaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit Breaker aberto"
+          description: "O circuit breaker {{ $labels.name }} na aplicação {{ $labels.application }} está no estado ABERTO há mais de 1 minuto."
+
+      # Alerta para alta taxa de cache miss
+      - alert: CacheMissElevado
+        expr: sum(rate(cache_misses_total[5m])) by (cache, application) / sum(rate(cache_gets_total[5m])) by (cache, application) > 0.75
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taxa de cache miss elevada"
+          description: "O cache {{ $labels.cache }} na aplicação {{ $labels.application }} está com taxa de miss acima de 75% por 10 minutos."
+
+      # Alerta para serviços com alta utilização de CPU
+      - alert: AltaUtilizacaoCPU
+        expr: sum(rate(process_cpu_usage[3m])) by (application, instance) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alta utilização de CPU"
+          description: "A aplicação {{ $labels.application }} ({{ $labels.instance }}) está com utilização de CPU acima de 85% por 5 minutos."
+
+      # Alerta para serviços com alta utilização de memória
+        - alert: AltaUtilizacaoMemoria
+          expr: sum(jvm_memory_used_bytes) by (application, instance) / sum(jvm_memory_max_bytes) by (application, instance) > 0.9
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Alta utilização de memória"
+            description: "A aplicação {{ $labels.application }} ({{ $labels.instance }}) está com utilização de memória acima de 90% por 5 minutos."
